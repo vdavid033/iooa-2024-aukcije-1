@@ -1,4 +1,5 @@
 // Importajte Axios ili drugu biblioteku za slanje HTTP zahtjeva
+
 import axios from 'axios';
 
 // Definirajte funkciju za registraciju korisnika

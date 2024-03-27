@@ -35,51 +35,40 @@ app.post('/api/registracija', (req, res) => {
 
   // Provjera valjanosti e-mail adrese
   const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-  if (!emailRegex.test(e-mail)) {
+  if (!emailRegex.test(email)) {
     return res.status(400).json({ message: 'Unesena e-mail adresa nije valjana.' });
   }
 
   // Hashiranje lozinke prije spremanja u bazu podataka
   bcrypt.hash(lozinka, 10, (error, hashedPassword) => {
-    if (error) throw error;
+    if (error) {
+      console.error('Greška pri hashiranju lozinke:', error);
+      return res.status(500).json({ message: 'Došlo je do greške prilikom hashiranja lozinke.' });
+    }
 
-    // Provjera postoji li korisnik s istim e-mailom
-    connection.query('SELECT * FROM korisnik WHERE e-mail = ?', [e-mail], (error, results) => {
-      if (error) throw error;
+    // Kreiranje novog korisnika s hashiranom lozinkom
+    const noviKorisnik = { ime_korisnika, prezime_korisnika, email, lozinka: hashedPassword, adresa_korisnika };
 
-      if (results.length > 0) {
-        return res.status(400).json({ message: 'Korisnik s tim e-mailom već postoji.' });
-      } else {
-        // Ako ne postoji, dodaj novog korisnika u bazu podataka
-        const noviKorisnik = { ime_korisnika, prezime_korisnika, "e-mail": e-mail, lozinka: hashedPassword, adresa_korisnika };
-        connection.query('INSERT INTO korisnik (ime_korisnika, prezime_korisnika, e-mail, lozinka, adresa_korisnika) VALUES (?, ?, ?, ?, ?)', [ime_korisnika, prezime_korisnika, e-mail, hashedPassword, adresa_korisnika], (error, result) => {
-          if (error) throw error;
-          res.status(201).json({ message: 'Registracija uspješna.', korisnik: noviKorisnik });
-        });
+    // Ubacivanje novog korisnika u bazu podataka
+    connection.query('INSERT INTO korisnik SET ?', noviKorisnik, (error, result) => {
+      if (error) {
+        console.error('Greška prilikom upisa korisnika:', error);
+        return res.status(500).json({ message: 'Došlo je do greške prilikom upisa korisnika u bazu podataka.' });
       }
+      res.status(201).json({ message: 'Registracija uspješna.', korisnik: noviKorisnik });
     });
   });
 });
-// KRAJ IZMJENJENE LOGIKE ZA REGISTRACIJU KORISNIKA
 
-app.post('/unosPredmeta', function (request, response) {
-    const data = request.body;
-    predmet = [[data.sifra_predmeta, data.naziv_predmeta,  data.opis_predmeta, data.slika, data.vrijeme_pocetka, data.vrijeme_zavrsetka, data.pocetna_cijena, data.svrha_donacije, data.id_korisnika, data.sifra_kategorije]]
-    connection.query('INSERT INTO predmet (sifra_predmeta, naziv_predmeta,  opis_predmeta, slika, vrijeme_pocetka, vrijeme_zavrsetka, pocetna_cijena, svrha_donacije, id_korisnika, sifra_kategorije) VALUES ?',
-    [predmet], function (error, results, fields) {
-      if (error) throw error;
-      console.log('data', data)
-      return response.send({ error: false, data: results, message: 'Predmet je dodan.' });
-    });
-});
-
-// Ostale rute...
-
+// Ruta za dohvaćanje svih predmeta
 app.get("/api/all-predmet", (req, res) => {
   connection.query(
     "SELECT sifra_predmeta, naziv_predmeta, slika, pocetna_cijena, vrijeme_zavrsetka, TIME_FORMAT( SEC_TO_TIME(TIMESTAMPDIFF(SECOND, NOW(), vrijeme_zavrsetka)), '%H:%i:%s' ) AS preostalo_vrijeme FROM predmet WHERE vrijeme_zavrsetka > NOW() ORDER BY preostalo_vrijeme DESC",
     (error, results) => {
-      if (error) throw error;
+      if (error) {
+        console.error('Greška prilikom dohvaćanja predmeta:', error);
+        return res.status(500).json({ message: 'Došlo je do greške prilikom dohvaćanja predmeta.' });
+      }
 
       res.send(results);
     }
