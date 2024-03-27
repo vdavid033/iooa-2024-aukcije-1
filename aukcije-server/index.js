@@ -2,8 +2,6 @@ const express = require("express");
 const cors = require("cors");
 const bodyParser = require("body-parser");
 const mysql = require("mysql");
-const { join } = require("path");
-const path = require("path");
 const bcrypt = require('bcrypt');
 
 const app = express();
@@ -15,9 +13,7 @@ app.use(bodyParser.json());
 // Parser za podatke iz formi
 app.use(bodyParser.urlencoded({ extended: true }));
 
-// Postavke direktorija za statičke datoteke
-app.use(express.static(path.join(__dirname, "public")));
-app.use(cors({ origin: "*" }));
+app.use(cors()); // Dodana opcija za CORS
 
 const connection = mysql.createConnection({
   host: "student.veleri.hr",
@@ -28,27 +24,18 @@ const connection = mysql.createConnection({
 
 connection.connect();
 
-app.get("/api/all-korisnik", (req, res) => {
-  connection.query("SELECT * FROM korisnik", (error, results) => {
-    if (error) throw error;
-
-    res.send(results);
-  });
-});
-
-// Logika za registraciju korisnika
-
+// Registracija korisnika
 app.post('/api/registracija', (req, res) => {
-  const { ime, prezime, email, lozinka, adresa } = req.body;
+  const { ime_korisnika, prezime_korisnika, email, lozinka, adresa_korisnika } = req.body;
 
-  // Provjera da li su svi potrebni podaci poslani
-  if (!ime || !prezime || !email || !lozinka || !adresa) {
+  // Provjera jesu li svi potrebni podaci poslani
+  if (!ime_korisnika || !prezime_korisnika || !email || !lozinka || !adresa_korisnika) {
     return res.status(400).json({ message: 'Svi podaci moraju biti poslani.' });
   }
 
   // Provjera valjanosti e-mail adrese
   const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-  if (!emailRegex.test(email)) {
+  if (!emailRegex.test(e-mail)) {
     return res.status(400).json({ message: 'Unesena e-mail adresa nije valjana.' });
   }
 
@@ -56,16 +43,16 @@ app.post('/api/registracija', (req, res) => {
   bcrypt.hash(lozinka, 10, (error, hashedPassword) => {
     if (error) throw error;
 
-    // Provjera da li postoji korisnik s istim emailom
-    connection.query('SELECT * FROM korisnik WHERE email = ?', [email], (error, results) => {
+    // Provjera postoji li korisnik s istim e-mailom
+    connection.query('SELECT * FROM korisnik WHERE e-mail = ?', [e-mail], (error, results) => {
       if (error) throw error;
 
       if (results.length > 0) {
-        return res.status(400).json({ message: 'Korisnik s tim emailom već postoji.' });
+        return res.status(400).json({ message: 'Korisnik s tim e-mailom već postoji.' });
       } else {
         // Ako ne postoji, dodaj novog korisnika u bazu podataka
-        const noviKorisnik = { ime, prezime, email, lozinka: hashedPassword, adresa };
-        connection.query('INSERT INTO korisnik (ime, prezime, email, lozinka, adresa) VALUES (?, ?, ?, ?, ?)', [ime, prezime, email, hashedPassword, adresa], (error, result) => {
+        const noviKorisnik = { ime_korisnika, prezime_korisnika, "e-mail": e-mail, lozinka: hashedPassword, adresa_korisnika };
+        connection.query('INSERT INTO korisnik (ime_korisnika, prezime_korisnika, e-mail, lozinka, adresa_korisnika) VALUES (?, ?, ?, ?, ?)', [ime_korisnika, prezime_korisnika, e-mail, hashedPassword, adresa_korisnika], (error, result) => {
           if (error) throw error;
           res.status(201).json({ message: 'Registracija uspješna.', korisnik: noviKorisnik });
         });

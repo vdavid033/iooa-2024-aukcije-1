@@ -6,11 +6,11 @@ async function registracija(ime, prezime, email, lozinka, adresa) {
   try {
     // Slanje HTTP zahtjeva na backend API za registraciju korisnika
     const response = await axios.post('/api/registracija', {
-      ime: ime,
-      prezime: prezime,
+      ime_korisnika: ime,
+      prezime_korisnika: prezime,
       email: email,
       lozinka: lozinka,
-      adresa: adresa // Dodano polje adresa
+      adresa_korisnika: adresa // Dodano polje adresa_korisnika
     });
 
     // Ovdje možete dodati logiku za obradu odgovora ako je registracija uspješna
@@ -25,4 +25,5 @@ async function registracija(ime, prezime, email, lozinka, adresa) {
 
 // Izvoz funkcije registracije kako bi bila dostupna drugim dijelovima vaše aplikacije
 export default registracija;
+
 
