@@ -4,6 +4,7 @@ const bodyParser = require("body-parser");
 const mysql = require("mysql");
 const { join } = require("path");
 const path = require("path");
+const bcrypt = require('bcrypt');
 
 const app = express();
 const port = 3000;
@@ -27,7 +28,6 @@ const connection = mysql.createConnection({
 
 connection.connect();
 
-
 app.get("/api/all-korisnik", (req, res) => {
   connection.query("SELECT * FROM korisnik", (error, results) => {
     if (error) throw error;
@@ -35,6 +35,45 @@ app.get("/api/all-korisnik", (req, res) => {
     res.send(results);
   });
 });
+
+// Logika za registraciju korisnika
+
+app.post('/api/registracija', (req, res) => {
+  const { ime, prezime, email, lozinka, adresa } = req.body;
+
+  // Provjera da li su svi potrebni podaci poslani
+  if (!ime || !prezime || !email || !lozinka || !adresa) {
+    return res.status(400).json({ message: 'Svi podaci moraju biti poslani.' });
+  }
+
+  // Provjera valjanosti e-mail adrese
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  if (!emailRegex.test(email)) {
+    return res.status(400).json({ message: 'Unesena e-mail adresa nije valjana.' });
+  }
+
+  // Hashiranje lozinke prije spremanja u bazu podataka
+  bcrypt.hash(lozinka, 10, (error, hashedPassword) => {
+    if (error) throw error;
+
+    // Provjera da li postoji korisnik s istim emailom
+    connection.query('SELECT * FROM korisnik WHERE email = ?', [email], (error, results) => {
+      if (error) throw error;
+
+      if (results.length > 0) {
+        return res.status(400).json({ message: 'Korisnik s tim emailom već postoji.' });
+      } else {
+        // Ako ne postoji, dodaj novog korisnika u bazu podataka
+        const noviKorisnik = { ime, prezime, email, lozinka: hashedPassword, adresa };
+        connection.query('INSERT INTO korisnik (ime, prezime, email, lozinka, adresa) VALUES (?, ?, ?, ?, ?)', [ime, prezime, email, hashedPassword, adresa], (error, result) => {
+          if (error) throw error;
+          res.status(201).json({ message: 'Registracija uspješna.', korisnik: noviKorisnik });
+        });
+      }
+    });
+  });
+});
+// KRAJ IZMJENJENE LOGIKE ZA REGISTRACIJU KORISNIKA
 
 app.post('/unosPredmeta', function (request, response) {
     const data = request.body;
@@ -46,6 +85,8 @@ app.post('/unosPredmeta', function (request, response) {
       return response.send({ error: false, data: results, message: 'Predmet je dodan.' });
     });
 });
+
+// Ostale rute...
 
 app.get("/api/all-predmet", (req, res) => {
   connection.query(
