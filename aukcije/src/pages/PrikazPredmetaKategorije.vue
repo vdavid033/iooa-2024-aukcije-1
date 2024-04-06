@@ -62,10 +62,5 @@ export default {
 };
 </script>
 
-<style>
-.q-img {
-  height: 300px;
-  max-width: 500px;
-}
-</style>
+
 

@@ -102,7 +102,7 @@ export default {
       }
 
       // Slanje registracijskog zahtjeva
-      axios.post('/api/registracija', {
+      axios.post('http://localhost:3000/api/registracija', {
         ime_korisnika: this.ime_korisnika,
         prezime_korisnika: this.prezime_korisnika,
         email: this.email,
@@ -122,7 +122,7 @@ export default {
       this.dialogMessage = 'Došlo je do greške prilikom registracije: ' + error.response.data.message;
     } else if (error.request) {
       this.dialogTitle = 'Neuspješna registracija';
-      this.dialogMessage = 'Nije primljen odgovor od servera.';
+      this.dialogMessage = 'Nije primljen odgovor od servera.' + error.response.data; 
     } else {
       this.dialogTitle = 'Neuspješna registracija';
       this.dialogMessage = 'Došlo je do greške prilikom slanja zahtjeva.';
@@ -144,8 +144,3 @@ export default {
 };
 </script>
 
-<style scoped>
-.q-card {
-  width: 360px;
-}
-</style>

@@ -113,7 +113,7 @@ app.get('/api/all-korisnik', (req, res) => {
         res.send(results)
     })
 })
-
+//http://localhost:3000/api/get-predmet
 app.get('/api/get-predmet/:id', (req, res) => {
     const { id } = req.params;
 

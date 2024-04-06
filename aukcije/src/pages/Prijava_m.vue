@@ -31,8 +31,4 @@
 
   </script>
   
-  <style>
-  .q-card {
-    width: 360px;
-  }
-  </style>
+ 
