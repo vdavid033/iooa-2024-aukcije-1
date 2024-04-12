@@ -12,10 +12,13 @@
         />
 
         <q-toolbar-title>
-          <q-avatar>
-            <img src="~assets\aukcije_logo.jpg" alt="Logo">
-          </q-avatar>
-        </q-toolbar-title>
+  <router-link to="/">
+    <q-avatar>
+      <img src="~assets\aukcije_logo.jpg" alt="Logo">
+    </q-avatar>
+  </router-link>
+</q-toolbar-title>
+
 
         <q-space></q-space>
 
@@ -164,6 +167,10 @@ methods: {
       // Implementirajte logiku za osvežavanje
     },
   },
+  mounted() {
+    // Zatvori lijevi drawer prilikom prvog otvaranja stranice
+    this.leftDrawerOpen = false;
+  }
 });
 </script>
 <style>
@@ -172,3 +179,6 @@ methods: {
   width: 64px;
 }
 </style>
+
+
+
