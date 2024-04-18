@@ -60,6 +60,48 @@ app.post('/api/registracija', (req, res) => {
   });
 });
 
+//Prijava korisnika
+// Prijava korisnika
+app.post('http://localhost:3000/api/prijava', (req, res) => {
+  const { email, lozinka } = req.body;
+
+  // Provjera jesu li svi potrebni podaci poslani
+  if (!email || !lozinka) {
+    return res.status(400).json({ message: 'Svi podaci moraju biti poslani.' });
+  }
+
+  // Pronalaženje korisnika u bazi po emailu
+  connection.query('SELECT * FROM korisnik WHERE email = ?', [email], (error, results) => {
+    if (error) {
+      console.error('Greška prilikom dohvaćanja korisnika:', error);
+      return res.status(500).json({ message: 'Došlo je do greške prilikom prijave.' });
+    }
+
+    // Provjera je li korisnik pronađen
+    if (results.length === 0) {
+      return res.status(404).json({ message: 'Korisnik nije pronađen.' });
+    }
+
+    const korisnik = results[0];
+
+    // Provjera je li lozinka ispravna
+    bcrypt.compare(lozinka, korisnik.lozinka, (compareError, result) => {
+      if (compareError) {
+        console.error('Greška prilikom usporedbe lozinke:', compareError);
+        return res.status(500).json({ message: 'Došlo je do greške prilikom prijave.' });
+      }
+
+      if (!result) {
+        return res.status(401).json({ message: 'Neispravna lozinka.' });
+      }
+
+      // Uspješna prijava
+      res.status(200).json({ message: 'Uspješna prijava.', korisnik });
+    });
+  });
+});
+
+
 // Ruta za dohvaćanje svih predmeta
 app.get("/api/all-predmet", (req, res) => {
   connection.query(
