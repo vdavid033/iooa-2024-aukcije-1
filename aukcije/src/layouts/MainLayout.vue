@@ -78,6 +78,9 @@
         <router-link v-if="!loggedIn" to="/prijava" class="link-style">
           <q-btn label="Prijava" color="primary" class="q-mr-md" />
         </router-link>
+        <router-link v-if="!loggedIn" to="/registracija" class="link-style">
+          <q-btn label="Registracija" color="primary" class="q-mr-md" />
+        </router-link>
         <router-link v-if="loggedIn" to="/" class="link-style">
           <q-btn label="Odjava" color="negative" class="q-mr-md" />
         </router-link>
