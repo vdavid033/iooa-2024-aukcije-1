@@ -2,8 +2,7 @@ const express = require("express");
 const cors = require("cors");
 const bodyParser = require("body-parser");
 const mysql = require("mysql");
-const { join } = require("path");
-const path = require("path");
+const bcrypt = require('bcrypt');
 
 const app = express();
 const port = 3000;
@@ -14,9 +13,7 @@ app.use(bodyParser.json());
 // Parser za podatke iz formi
 app.use(bodyParser.urlencoded({ extended: true }));
 
-// Postavke direktorija za statičke datoteke
-app.use(express.static(path.join(__dirname, "public")));
-app.use(cors({ origin: "*" }));
+app.use(cors()); // Dodana opcija za CORS
 
 const connection = mysql.createConnection({
   host: "student.veleri.hr",
@@ -27,31 +24,51 @@ const connection = mysql.createConnection({
 
 connection.connect();
 
+// Registracija korisnika
+app.post('/api/registracija', (req, res) => {
+  const { ime_korisnika, prezime_korisnika, email, lozinka, adresa_korisnika } = req.body;
 
-app.get("/api/all-korisnik", (req, res) => {
-  connection.query("SELECT * FROM korisnik", (error, results) => {
-    if (error) throw error;
+  // Provjera jesu li svi potrebni podaci poslani
+  if (!ime_korisnika || !prezime_korisnika || !email || !lozinka || !adresa_korisnika) {
+    return res.status(400).json({ message: 'Svi podaci moraju biti poslani.' });
+  }
 
-    res.send(results);
+  // Provjera valjanosti e-mail adrese
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  if (!emailRegex.test(email)) {
+    return res.status(400).json({ message: 'Unesena e-mail adresa nije valjana.' });
+  }
+
+  // Hashiranje lozinke prije spremanja u bazu podataka
+  bcrypt.hash(lozinka, 10, (error, hashedPassword) => {
+    if (error) {
+      console.error('Greška pri hashiranju lozinke:', error);
+      return res.status(500).json({ message: 'Došlo je do greške prilikom hashiranja lozinke.' });
+    }
+
+    // Kreiranje novog korisnika s hashiranom lozinkom
+    const noviKorisnik = { ime_korisnika, prezime_korisnika, email, lozinka: hashedPassword, adresa_korisnika };
+
+    // Ubacivanje novog korisnika u bazu podataka
+    connection.query('INSERT INTO korisnik SET ?', noviKorisnik, (error, result) => {
+      if (error) {
+        console.error('Greška prilikom upisa korisnika:', error);
+        return res.status(500).json({ message: 'Došlo je do greške prilikom upisa korisnika u bazu podataka.' });
+      }
+      res.status(201).json({ message: 'Registracija uspješna.', korisnik: noviKorisnik });
+    });
   });
 });
 
-app.post('/unosPredmeta', function (request, response) {
-    const data = request.body;
-    predmet = [[data.sifra_predmeta, data.naziv_predmeta,  data.opis_predmeta, data.slika, data.vrijeme_pocetka, data.vrijeme_zavrsetka, data.pocetna_cijena, data.svrha_donacije, data.id_korisnika, data.sifra_kategorije]]
-    connection.query('INSERT INTO predmet (sifra_predmeta, naziv_predmeta,  opis_predmeta, slika, vrijeme_pocetka, vrijeme_zavrsetka, pocetna_cijena, svrha_donacije, id_korisnika, sifra_kategorije) VALUES ?',
-    [predmet], function (error, results, fields) {
-      if (error) throw error;
-      console.log('data', data)
-      return response.send({ error: false, data: results, message: 'Predmet je dodan.' });
-    });
-});
-
+// Ruta za dohvaćanje svih predmeta
 app.get("/api/all-predmet", (req, res) => {
   connection.query(
     "SELECT sifra_predmeta, naziv_predmeta, slika, pocetna_cijena, vrijeme_zavrsetka, TIME_FORMAT( SEC_TO_TIME(TIMESTAMPDIFF(SECOND, NOW(), vrijeme_zavrsetka)), '%H:%i:%s' ) AS preostalo_vrijeme FROM predmet WHERE vrijeme_zavrsetka > NOW() ORDER BY preostalo_vrijeme DESC",
     (error, results) => {
-      if (error) throw error;
+      if (error) {
+        console.error('Greška prilikom dohvaćanja predmeta:', error);
+        return res.status(500).json({ message: 'Došlo je do greške prilikom dohvaćanja predmeta.' });
+      }
 
       res.send(results);
     }
@@ -96,7 +113,7 @@ app.get('/api/all-korisnik', (req, res) => {
         res.send(results)
     })
 })
-
+//http://localhost:3000/api/get-predmet
 app.get('/api/get-predmet/:id', (req, res) => {
     const { id } = req.params;
 
