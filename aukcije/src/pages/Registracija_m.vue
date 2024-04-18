@@ -85,7 +85,7 @@ export default {
       }
 
       // Provjera sadržaja imena i prezimena (samo slova i razmaci)
-      const nameRegex = /^[a-zA-Z\s]*$/;
+      const nameRegex = /^[a-zA-ZčćžšđČĆŽŠĐ\s]*$/;
       if (!nameRegex.test(this.ime_korisnika) || !nameRegex.test(this.prezime_korisnika)) {
         this.dialogTitle = 'Neuspješna registracija';
         this.dialogMessage = 'Ime i prezime mogu sadržavati samo slova.';
