@@ -7,13 +7,16 @@ const bcrypt = require('bcrypt');
 const app = express();
 const port = 3000;
 
+
 // Parser za JSON podatke
 app.use(bodyParser.json());
 
 // Parser za podatke iz formi
 app.use(bodyParser.urlencoded({ extended: true }));
 
-app.use(cors()); // Dodana opcija za CORS
+const cors = require('cors');
+app.use(cors());
+
 
 const connection = mysql.createConnection({
   host: "student.veleri.hr",
@@ -62,29 +65,27 @@ app.post('/api/registracija', (req, res) => {
 
 //Prijava korisnika
 // Prijava korisnika
-app.post('http://localhost:3000/api/prijava', (req, res) => {
+app.post('/api/prijava', (req, res) => {
+  console.log("Prijava je pozvana");
   const { email, lozinka } = req.body;
 
-  // Provjera jesu li svi potrebni podaci poslani
   if (!email || !lozinka) {
     return res.status(400).json({ message: 'Svi podaci moraju biti poslani.' });
   }
 
-  // Pronalaženje korisnika u bazi po emailu
+  // Traženje korisnika prema e-mailu
   connection.query('SELECT * FROM korisnik WHERE email = ?', [email], (error, results) => {
     if (error) {
       console.error('Greška prilikom dohvaćanja korisnika:', error);
       return res.status(500).json({ message: 'Došlo je do greške prilikom prijave.' });
     }
 
-    // Provjera je li korisnik pronađen
     if (results.length === 0) {
       return res.status(404).json({ message: 'Korisnik nije pronađen.' });
     }
 
     const korisnik = results[0];
 
-    // Provjera je li lozinka ispravna
     bcrypt.compare(lozinka, korisnik.lozinka, (compareError, result) => {
       if (compareError) {
         console.error('Greška prilikom usporedbe lozinke:', compareError);
@@ -100,6 +101,7 @@ app.post('http://localhost:3000/api/prijava', (req, res) => {
     });
   });
 });
+
 
 
 // Ruta za dohvaćanje svih predmeta
