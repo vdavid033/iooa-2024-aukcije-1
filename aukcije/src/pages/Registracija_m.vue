@@ -20,9 +20,6 @@
             <q-card-actions class="q-px-md">
               <q-btn unelevated color="light-blue-7" size="lg" class="full-width" label="Registracija" @click="registracija" />
             </q-card-actions>
-            <q-card-actions class="q-px-md">
-              <q-btn unelevated color="light-blue-7" size="lg" class="full-width" label="Prijava" @click="prijava" />
-            </q-card-actions>
             <q-card-section class="text-center q-pa-none">
               <router-link to="/" class="link-style"><p class="text-grey-6">Nastavi kao gost</p></router-link>
             </q-card-section>
@@ -41,7 +38,7 @@
           <p class="text-center">{{ dialogMessage }}</p>
         </q-card-section>
         <q-card-actions align="center">
-          <q-btn color="primary" label="Zatvori" @click="zatvoriDialog" />
+          <q-btn v-if="!showMessage" color="primary" label="Zatvori" @click="zatvoriDialog" />
         </q-card-actions>
       </q-card>
     </q-dialog>
@@ -49,7 +46,6 @@
 </template>
 
 <script>
-// Uvoz funkcije za slanje registracijskog zahtjeva
 import axios from 'axios';
 
 export default {
@@ -62,7 +58,8 @@ export default {
       adresa_korisnika: '',
       dialog: false,
       dialogTitle: '',
-      dialogMessage: ''
+      dialogMessage: '',
+      showMessage: false
     };
   },
   methods: {
@@ -85,7 +82,7 @@ export default {
       }
 
       // Provjera sadržaja imena i prezimena (samo slova i razmaci)
-      const nameRegex = /^[a-zA-Z\s]*$/;
+      const nameRegex = /^[a-zA-ZčćžšđČĆŽŠĐ\s]*$/;
       if (!nameRegex.test(this.ime_korisnika) || !nameRegex.test(this.prezime_korisnika)) {
         this.dialogTitle = 'Neuspješna registracija';
         this.dialogMessage = 'Ime i prezime mogu sadržavati samo slova.';
@@ -114,27 +111,35 @@ export default {
         this.dialogTitle = 'Uspješna registracija';
         this.dialogMessage = 'Vaš račun je uspješno kreiran.';
         this.dialog = true;
+        // Postavljamo odgodu prije prijave
+        setTimeout(() => {
+          this.prijava();
+        }, 2000); // 2 sekunde odgode prije prijave
       })
       .catch(error => {
-            // Ako je registracija neuspješna, postavljamo odgovarajuću poruku za skočni prozor
-    if (error.response && error.response.data && error.response.data.message) {
-      this.dialogTitle = 'Neuspješna registracija';
-      this.dialogMessage = 'Došlo je do greške prilikom registracije: ' + error.response.data.message;
-    } else if (error.request) {
-      this.dialogTitle = 'Neuspješna registracija';
-      this.dialogMessage = 'Nije primljen odgovor od servera.' + error.response.data; 
-    } else {
-      this.dialogTitle = 'Neuspješna registracija';
-      this.dialogMessage = 'Došlo je do greške prilikom slanja zahtjeva.';
-    }
-    this.dialog = true;
-    console.error(error);
-  });
-},
-
+        // Ako je registracija neuspješna, postavljamo odgovarajuću poruku za skočni prozor
+        if (error.response && error.response.data && error.response.data.message) {
+          this.dialogTitle = 'Neuspješna registracija';
+          this.dialogMessage = 'Došlo je do greške prilikom registracije: ' + error.response.data.message;
+        } else if (error.request) {
+          this.dialogTitle = 'Neuspješna registracija';
+          this.dialogMessage = 'Nije primljen odgovor od servera.' + error.response.data; 
+        } else {
+          this.dialogTitle = 'Neuspješna registracija';
+          this.dialogMessage = 'Došlo je do greške prilikom slanja zahtjeva.';
+        }
+        this.dialog = true;
+        console.error(error);
+      });
+    },
     prijava() {
       // Logika za prijavu korisnika
       console.log('Prijavljivanje korisnika:', this.email, this.lozinka);
+     
+      this.showMessage = true; // Prikaži poruku
+      setTimeout(() => {
+        this.$router.push('/prijava'); // Preusmjeri na stranicu prijave nakon određenog vremena
+      }, 2000); // 2 sekunde odgode prije preusmjeravanja
     },
     zatvoriDialog() {
       // Zatvaranje skočnog prozora
@@ -143,4 +148,7 @@ export default {
   }
 };
 </script>
+
+
+
 

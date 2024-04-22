@@ -42,31 +42,50 @@ app.post('/api/registracija', (req, res) => {
     return res.status(400).json({ message: 'Unesena e-mail adresa nije valjana.' });
   }
 
-  // Hashiranje lozinke prije spremanja u bazu podataka
-  bcrypt.hash(lozinka, 10, (error, hashedPassword) => {
+  // Provjera imena i prezimena
+  const nameRegex = /^[a-zA-ZčćžšđČĆŽŠĐ\s\-']+$/;
+  if (!nameRegex.test(ime_korisnika) || !nameRegex.test(prezime_korisnika)) {
+    return res.status(400).json({ message: 'Ime i prezime mogu sadržavati samo slova, razmake i neke posebne znakove (-, \', i šćčžđ).' });
+  }
+
+  // Provjera postojanja e-maila u bazi podataka
+  connection.query('SELECT * FROM korisnik WHERE email = ?', [email], (error, results) => {
     if (error) {
-      console.error('Greška pri hashiranju lozinke:', error);
-      return res.status(500).json({ message: 'Došlo je do greške prilikom hashiranja lozinke.' });
+      console.error('Greška prilikom provjere postojanja e-maila:', error);
+      return res.status(500).json({ message: 'Došlo je do greške prilikom provjere postojanja e-maila.' });
     }
 
-    // Kreiranje novog korisnika s hashiranom lozinkom
-    const noviKorisnik = { ime_korisnika, prezime_korisnika, email, lozinka: hashedPassword, adresa_korisnika };
+    // Ako već postoji korisnik s istom e-mail adresom, odbiti registraciju
+    if (results.length > 0) {
+      return res.status(409).json({ message: 'Korisnik s tom e-mail adresom već postoji.' });
+    }
 
-    // Ubacivanje novog korisnika u bazu podataka
-    connection.query('INSERT INTO korisnik SET ?', noviKorisnik, (error, result) => {
+    // Hashiranje lozinke prije spremanja u bazu podataka
+    bcrypt.hash(lozinka, 10, (error, hashedPassword) => {
       if (error) {
-        console.error('Greška prilikom upisa korisnika:', error);
-        return res.status(500).json({ message: 'Došlo je do greške prilikom upisa korisnika u bazu podataka.' });
+        console.error('Greška pri hashiranju lozinke:', error);
+        return res.status(500).json({ message: 'Došlo je do greške prilikom hashiranja lozinke.' });
       }
-      res.status(201).json({ message: 'Registracija uspješna.', korisnik: noviKorisnik });
+
+      // Kreiranje novog korisnika s hashiranom lozinkom
+      const noviKorisnik = { ime_korisnika, prezime_korisnika, email, lozinka: hashedPassword, adresa_korisnika };
+
+      // Ubacivanje novog korisnika u bazu podataka
+      connection.query('INSERT INTO korisnik SET ?', noviKorisnik, (error, result) => {
+        if (error) {
+          console.error('Greška prilikom upisa korisnika:', error);
+          return res.status(500).json({ message: 'Došlo je do greške prilikom upisa korisnika u bazu podataka.' });
+        }
+        res.status(201).json({ message: 'Registracija uspješna.', korisnik: noviKorisnik });
+      });
     });
   });
 });
 
-//Prijava korisnika
+
+
 // Prijava korisnika
 app.post('/api/prijava', (req, res) => {
-  console.log("Prijava je pozvana");
   const { email, lozinka } = req.body;
 
   if (!email || !lozinka) {

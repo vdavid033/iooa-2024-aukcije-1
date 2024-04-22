@@ -1,4 +1,3 @@
-
 import Pocetna from "pages/Pocetna.vue";
 import konverter from "pages/konverter.vue";
 import PostaviAukciju from "pages/PostaviAukciju.vue";
@@ -59,3 +58,4 @@ const routes = [
 ];
 
 export default routes;
+

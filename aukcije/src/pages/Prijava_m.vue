@@ -17,7 +17,9 @@
               <q-btn unelevated color="light-blue-7" size="lg" class="full-width" label="Prijava" @click="prijava" />
             </q-card-actions>
             <q-card-actions class="q-px-md">
-              <router-link to="/registracija" class="link-style"><p class="text-grey-6">Nemate račun? Registrirajte se ovdje.</p></router-link>
+              <router-link v-if="!authenticated" to="/registracija" class="link-style">
+                <p class="text-grey-6">Nemate račun? Registrirajte se ovdje.</p>
+              </router-link>
             </q-card-actions>
           </q-card>
         </div>
@@ -52,7 +54,8 @@ export default {
       lozinka: '',
       dialog: false,
       dialogTitle: '',
-      dialogMessage: ''
+      dialogMessage: '',
+      authenticated: false // Dodano za praćenje autentikacije
     };
   },
   methods: {
@@ -71,11 +74,13 @@ export default {
         lozinka: this.lozinka
       })
       .then(response => {
-        // Ako je prijava uspješna, preusmjeravamo korisnika na početnu stranicu ili neku drugu stranicu
+        // Ako je prijava uspješna, postavljamo stanje autentikacije i prikazujemo poruku
+        this.authenticated = true;
         this.dialogTitle = 'Uspješna prijava';
         this.dialogMessage = 'Dobrodošli nazad!';
         this.dialog = true;
-        // Ovdje možete dodati preusmjeravanje na drugu stranicu
+        // Redirekcija na drugu stranicu
+        this.$router.push('/'); // Preusmjeravanje na početnu stranicu
       })
       .catch(error => {
         // Ako je prijava neuspješna, prikazujemo odgovarajuću poruku
@@ -97,3 +102,7 @@ export default {
   }
 };
 </script>
+
+
+
+
