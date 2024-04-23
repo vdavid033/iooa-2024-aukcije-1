@@ -9,129 +9,162 @@
           icon="menu"
           aria-label="Menu"
           @click="toggleLeftDrawer"
+          
         />
 
         <q-toolbar-title>
-  <router-link to="/">
-    <q-avatar>
-      <img src="~assets\aukcije_logo.jpg" alt="Logo">
-    </q-avatar>
-  </router-link>
-</q-toolbar-title>
-
-
-        <q-space></q-space>
-
-        <q-input
-          v-model="search"
-          filled
-          placeholder="Pretraga"
-          dense
-          class="w-200"
-          @keyup.enter="searchItems"
-        />
-
-        <q-btn
-          icon="search"
-          color="primary"
-          class="q-mr-md"
-          @click="searchItems"
-        />
-
-        <q-btn
-          icon="clear"
-          color="primary"
-          @click="clearSearch"
-        />
-
-        <div class="q-pa-md">
-            <q-btn-dropdown color="primary" :label="selectedCategory">
-              <q-list>
-                <q-item clickable v-close-popup @click="onItemClick('Photos')">
-                  <q-item-section>
-                    <q-item-label>Kategorija 1</q-item-label>
-                  </q-item-section>
-                </q-item>
-          
-                <q-item clickable v-close-popup @click="onItemClick('Videos')">
-                  <q-item-section>
-                    <q-item-label>Kategorija 2</q-item-label>
-                  </q-item-section>
-                </q-item>
-          
-                <q-item clickable v-close-popup @click="onItemClick('Articles')">
-                  <q-item-section>
-                    <q-item-label>Kategorija 3</q-item-label>
-                  </q-item-section>
-                </q-item>
-              </q-list>
-            </q-btn-dropdown>
-          </div>
-        <q-btn
-          icon="refresh"
-          color="primary"
-          @click="refresh"
-        />
+          <router-link to="/">
+            <q-avatar>
+              <img src="~assets/aukcije_logo.jpg" alt="Logo" />
+            </q-avatar>
+          </router-link>
+        </q-toolbar-title>
 
         <q-space />
 
-        <router-link v-if="!loggedIn" to="/prijava" class="link-style">
-          <q-btn label="Prijava" color="primary" class="q-mr-md" />
-        </router-link>
-        <router-link v-if="!loggedIn" to="/registracija" class="link-style">
-          <q-btn label="Registracija" color="primary" class="q-mr-md" />
-        </router-link>
-        <router-link v-if="loggedIn" to="/" class="link-style">
-          <q-btn label="Odjava" color="negative" class="q-mr-md" />
-        </router-link>
+        <div class="row items-center">
+          <!-- Pretraga -->
+          <q-input
+            v-model="search"
+            filled
+            placeholder="Pretraga"
+            dense
+            class="w-200"
+            @keyup.enter="searchItems"
+          />
+          <q-btn
+            icon="search"
+            color="primary"
+            @click="searchItems"
+          />
+          <q-btn
+            icon="clear"
+            color="primary"
+            @click="clearSearch"
+          />
 
+          <!-- Prijava, Registracija i Odjava -->
+          <router-link
+            v-if="!authenticated"
+            to="/prijava"
+            class="q-mr-md link-style"
+          >
+            <q-btn label="Prijava" color="primary" />
+          </router-link>
+
+          <router-link
+            v-if="!authenticated"
+            to="/registracija"
+            class="q-mr-md link-style"
+          >
+            <q-btn label="Registracija" color="primary" />
+          </router-link>
+
+          <q-btn
+            v-if="authenticated"
+            label="Odjava"
+            color="negative"
+            @click="odjava"
+          />
+        </div>
       </q-toolbar>
     </q-header>
 
-    <q-drawer v-model="leftDrawerOpen" show-if-above bordered>
-      <!-- Sadržaj lijevog drawer-a -->
-      <q-list>
-        <q-item-label header class="text-bold text-black">
-          Mogućnosti
+    <!-- Lijevi izbornik s opcijama -->
+    <q-drawer
+    
+      v-model="leftDrawerOpen"
+      show-if-above
+      bordered
+      width="280px"
+      class="drawer-style"
+      
+    >
+      <q-list padding>
+        <!-- Glavni naslov s dekoracijom -->
+        <q-item-label header class="text-bold drawer-header">
+          Glavni izbornik
         </q-item-label>
-        
-        <div class="q-pa-sm col">
-          <div class="q-pa-sm col">
-            <q-btn class="flex flex-center" style="width: 280px">
-              <router-link to="/prijava" class="link-style">
-                Prijava
-              </router-link>
-            </q-btn>
-          </div>
-          <div class="q-pa-sm col">
-            <q-btn class="flex flex-center" style="width: 280px">
-              <router-link to="/registracija" class="link-style">
-                Registracija
-              </router-link>
-            </q-btn>
-          </div>
-          <div class="q-pa-sm col">
-            <q-btn class="flex flex-center" style="width: 280px">
-              <router-link to="/" class="link-style">
-                Početna stranica
-              </router-link>
-            </q-btn>
-          </div>
-          <div class="q-pa-sm col">
-            <q-btn class="flex flex-center" style="width: 280px">
-              <router-link to="postavi" class="link-style">
-                Dodaj aukciju
-              </router-link>
-            </q-btn>
-          </div>
-          <div class="q-pa-sm col">
-            <q-btn class="flex flex-center" style="width: 280px">
-              <router-link to="/Moj_profil" class="link-style">
-                Moj profil
-              </router-link>
-            </q-btn>
-          </div>
-        </div>
+
+        <div class="spacer"></div>
+
+        <!-- Navigacijski linkovi s ikonama -->
+        <router-link to="/" class="link-style">
+          <q-item clickable>
+            <q-item-section avatar>
+              <q-icon name="home" color="primary" />
+            </q-item-section>
+            <q-item-section>
+              Početna stranica
+            </q-item-section>
+          </q-item>
+        </router-link>
+
+        <router-link to="/postavi" class="link-style">
+          <q-item clickable>
+            <q-item-section avatar>
+              <q-icon name="add_circle" color="green" />
+            </q-item-section>
+            <q-item-section>
+              Dodaj aukciju
+            </q-item-section>
+          </q-item>
+        </router-link>
+
+        <router-link to="/Moj_profil" class="link-style">
+          <q-item clickable>
+            <q-item-section avatar>
+              <q-icon name="account_circle" color="blue" />
+            </q-item-section>
+            <q-item-section>
+              Moj profil
+            </q-item-section>
+          </q-item>
+        </router-link>
+
+        <router-link v-if="authenticated" to="/moji-predmeti" class="link-style">
+          <q-item clickable>
+            <q-item-section avatar>
+              <q-icon name="inventory_2" color="orange" />
+            </q-item-section>
+            <q-item-section>
+              Moji predmeti
+            </q-item-section>
+          </q-item>
+        </router-link>
+
+        <!-- Prijava i registracija samo ako korisnik nije prijavljen -->
+        <router-link v-if="!authenticated" to="/prijava" class="link-style">
+          <q-item clickable>
+            <q-item-section avatar>
+              <q-icon name="login" color="purple" />
+            </q-item-section>
+            <q-item-section>
+              Prijava
+            </q-item-section>
+          </q-item>
+        </router-link>
+
+        <router-link v-if="!authenticated" to="/registracija" class="link-style">
+          <q-item clickable>
+            <q-item-section avatar>
+              <q-icon name="person_add" color="red" />
+            </q-item-section>
+            <q-item-section>
+              Registracija
+            </q-item-section>
+          </q-item>
+        </router-link>
+
+        <!-- Odjava za prijavljenog korisnika -->
+        <q-item v-if="authenticated" clickable @click="odjava">
+          <q-item-section avatar>
+            <q-icon name="logout" color="negative" />
+          </q-item-section>
+          <q-item-section>
+            Odjava
+          </q-item-section>
+        </q-item>
       </q-list>
     </q-drawer>
 
@@ -142,46 +175,98 @@
 </template>
 
 <script>
-import { defineComponent, ref } from "vue";
-import axios from "axios";
-
-const baseUrl = "http://localhost:3306/api/";
+import { defineComponent } from 'vue';
+import axios from 'axios';
 
 export default defineComponent({
-  name: "MainLayout",
-
   data() {
     return {
       leftDrawerOpen: false,
-      loggedIn: false,
-      search: "",
-      selectedCategory: "",
+      authenticated: false,
+      search: '',
     };
   },
 
-methods: {
-    // Metode za obradu događaja
-
+  methods: {
     toggleLeftDrawer() {
       this.leftDrawerOpen = !this.leftDrawerOpen;
     },
-
-    refresh() {
-      // Implementirajte logiku za osvežavanje
+    searchItems() {
+      // Logika za pretragu
     },
-  },
-  mounted() {
+    clearSearch() {
+      this.search = '';
+    },
+    mounted() {
     // Zatvori lijevi drawer prilikom prvog otvaranja stranice
     this.leftDrawerOpen = false;
-  }
+  },
+    odjava() {
+      this.authenticated = false;
+      // Logika za odjavu
+    },
+    odjavaAndClose() {
+      this.odjava(); // Odjava i zatvaranje izbornika
+      this.closeLeftDrawer();
+    },
+  },
 });
 </script>
-<style>
-.q-avatar{
-  height: 64px;
-  width: 64px;
+
+<style scoped>
+
+/* Osnovni stilovi za drawer */
+.drawer-style {
+  background-color: #fafafa;
+  border-right: 1px solid #ddd;
+  width: 280px;
 }
+
+/* Stil za zaglavlje izbornika */
+.drawer-header {
+  color: #3f51b5;
+  padding: 10px;
+  text-transform: uppercase;
+  font-weight: bold;
+}
+
+/* Stilizacija stavki u draweru, s plavim linijama na dnu */
+.q-item {
+  padding: 18px;
+  color: #5c5a5a;
+  border: 1px solid #2479d9; /* Plava linija na dnu */
+  
+}
+.q-item:hover {
+  background-color: #e0e0e0; /* Svijetlo-siva boja prilikom hovera */
+  color: #3f51b5; /* Plava boja teksta */
+  cursor: pointer; /* Promjena pokazivača na ruku */
+  transition: all 0.3s ease-in-out; /* Dodavanje glatke tranzicije */}
+
+/* Stil za razdvajanje stavki (spacers) */
+.spacer {
+  height: 16px;
+}
+
+/* Stilizacija za avatar i logotip */
+.q-avatar {
+  height: 60px;
+  width: 60px;
+  border-radius: 50%;
+  overflow: hidden;
+  transition: transform 0.3s, filter 0.3s; /* Efekti prijelaza za hover */
+}
+
+/* Efekt hovera za avatar/logotip */
+.q-avatar:hover {
+  transform: scale(1.1);
+  filter: brightness(1.2); 
+}
+
+/* Stilovi za linkove */
+.link-style {
+  text-decoration: none;
+  color: inherit;
+}
+
 </style>
-
-
-

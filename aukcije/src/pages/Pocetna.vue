@@ -90,6 +90,7 @@ export default {
       this.$router.push({ path: "kategorija", query: { sifra_kategorije } });
     },
   },
+  
 };
 </script>
 

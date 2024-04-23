@@ -14,7 +14,7 @@ app.use(bodyParser.json());
 // Parser za podatke iz formi
 app.use(bodyParser.urlencoded({ extended: true }));
 
-const cors = require('cors');
+
 app.use(cors());
 
 
@@ -121,7 +121,39 @@ app.post('/api/prijava', (req, res) => {
   });
 });
 
+//Provjera prijave
+app.get("/api/check-login", (req, res) => {
+  if (req.session && req.session.userId) {
+    res.status(200).json({ authenticated: true });
+  } else {
+    res.status(200).json({ authenticated: false });
+  }
+});
 
+
+// Ruta za odjavu
+app.post("/api/odjava", (req, res) => {
+  if (req.session) {
+    req.session.destroy((err) => {
+      if (err) {
+        console.error("Greška prilikom uništavanja sesije:", err);
+        return res.status(500).json({ message: "Došlo je do greške prilikom odjave." });
+      }
+      res.status(200).json({ message: "Odjava uspješna." });
+    });
+  } else {
+    res.status(400).json({ message: "Nema aktivne sesije za uništiti." });
+  }
+});
+
+// Primjer zaštićene rute
+app.get("/api/zaštićeno", requireAuth, (req, res) => {
+  res.status(200).json({ message: "Ovo je zaštićena ruta." });
+});
+
+app.listen(port, () => {
+  console.log(`Server pokrenut na http://localhost:${port}`);
+});
 
 // Ruta za dohvaćanje svih predmeta
 app.get("/api/all-predmet", (req, res) => {
@@ -260,6 +292,8 @@ app.get('/api/get-predmet-trenutna-cijena/:id', (req, res) => {
     }
   );
 });
+
+
 
 app.listen(port, () => {
   console.log('Server running at port: ' + port);

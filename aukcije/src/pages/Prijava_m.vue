@@ -55,7 +55,7 @@ export default {
       dialog: false,
       dialogTitle: '',
       dialogMessage: '',
-      authenticated: false // Dodano za praćenje autentikacije
+      authenticated: false, // Stanje prijavljenosti
     };
   },
   methods: {
@@ -68,39 +68,49 @@ export default {
         return;
       }
 
-      // Slanje prijavničkog zahtjeva
       axios.post('http://localhost:3000/api/prijava', {
-        email: this.email,
-        lozinka: this.lozinka
-      })
-      .then(response => {
-        // Ako je prijava uspješna, postavljamo stanje autentikacije i prikazujemo poruku
-        this.authenticated = true;
-        this.dialogTitle = 'Uspješna prijava';
-        this.dialogMessage = 'Dobrodošli nazad!';
-        this.dialog = true;
-        // Redirekcija na drugu stranicu
-        this.$router.push('/'); // Preusmjeravanje na početnu stranicu
-      })
-      .catch(error => {
-        // Ako je prijava neuspješna, prikazujemo odgovarajuću poruku
-        if (error.response && error.response.data && error.response.data.message) {
-          this.dialogTitle = 'Neuspješna prijava';
-          this.dialogMessage = error.response.data.message;
-        } else {
-          this.dialogTitle = 'Neuspješna prijava';
-          this.dialogMessage = 'Došlo je do greške prilikom prijave.';
-        }
-        this.dialog = true;
-        console.error(error);
-      });
+          email: this.email,
+          lozinka: this.lozinka,
+        })
+        .then((response) => {
+          if (response.data.korisnik) {
+            // Spremanje tokena i korisničkih podataka nakon prijave
+      const token = response.data.token;
+      const korisnik = response.data.korisnik;
+
+      // Spremanje tokena u lokalnu pohranu ili Vuex
+      localStorage.setItem("authToken", token); // Ako koristite lokalnu pohranu
+      this.authenticated = true; // Ažuriranje stanja
+      this.$router.push("/"); // Preusmjeravanje na početnu stranicu
+            this.authenticated = true; // Postavite na true nakon prijave
+            this.dialogTitle = 'Uspješna prijava';
+            this.dialogMessage = 'Dobrodošli nazad!';
+            this.dialog = true;
+            this.$router.push('/'); // Preusmjerite na početnu stranicu
+          }
+        })
+        .catch((error) => {
+          if (error.response && error.response.data && error.response.data.message) {
+            this.dialogTitle = 'Neuspješna prijava';
+            this.dialogMessage = error.response.data.message;
+          } else {
+            this.dialogTitle = 'Neuspješna prijava';
+            this.dialogMessage = 'Došlo je do greške prilikom prijave.';
+          }
+          this.dialog = true;
+        });
+    },
+    odjava() {
+      this.authenticated = false; // Postavite na false nakon odjave
+      this.$router.push('/prijava'); // Preusmjerite na stranicu prijave
     },
     zatvoriDialog() {
       // Zatvaranje skočnog prozora za prikaz poruka
       this.dialog = false;
-    }
-  }
+    },
+  },
 };
+
 </script>
 
 
