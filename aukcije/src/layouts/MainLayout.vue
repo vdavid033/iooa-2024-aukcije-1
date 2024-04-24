@@ -172,7 +172,39 @@
       <router-view />
     </q-page-container>
   </q-layout>
+
+  <section class="footer">
+    <div class="footer-container container">
+      <div class="footer-box">
+        <a href="#" class="aukcije_logo"><span>Aukcije</span></a>
+        <div class="social">
+          <a href="https://www.facebook.com/HSAuto2014/"><i class='bx bxl-facebook'></i></a>
+          <a href="https://www.instagram.com/_hs_auto/"><i class='bx bxl-instagram'></i></a>
+          <a href="#"><i class='bx bxl-whatsapp'></i></a>
+        </div>
+      </div>
+      <div class="footer-box">
+        <h3>Stranica</h3>
+        <a href="#">Početna</a>
+        <a href="#">Moj Profil</a>
+        <a href="#">Prijava</a>
+        <a href="#">Registracija</a>
+      </div>
+      <div class="footer-box">
+        <h3>Saznaj više</h3>
+        <a href="#">FAQ</a>
+        <a href="#">Refund policy</a>
+
+      </div>
+      <div class="footer-box">
+        
+        <p>Hrvatska</p>
+      </div>
+
+    </div>
+  </section>
 </template>
+
 
 <script>
 import { defineComponent } from 'vue';
@@ -268,5 +300,75 @@ export default defineComponent({
   text-decoration: none;
   color: inherit;
 }
+.footer {
+    background: #2479d9;
+    color: #e0e3ec;
+    border-top: 2px solid var(--main-color);
+    padding: 0.1rem 2rem;
+}
+
+.footer-container {
+    display: flex;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 1.5rem;
+}
+
+.footer-container .footer-box {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    max-width: 250px;
+}
+
+.footer-box h3 {
+    font-size: 1.2rem;
+    font-weight: 600;
+    margin-bottom: 1rem;
+    color: #ffffff;
+}
+
+.footer-box a,
+.footer-box p {
+    color: #e0e3ec;
+    text-decoration: none;
+    margin-bottom: 10px;
+}
+
+.footer-box a:hover {
+    color: #ffffff;
+    text-decoration: underline;
+}
+
+.footer-button {
+    background: #1e5faa;
+    color: white;
+    padding: 0.5rem 1rem;
+    border: none;
+    border-radius: 5px;
+    text-align: center;
+    cursor: pointer;
+    
+}
+
+.footer-button:hover {
+    background: #124b8b;
+}
+
+.footer-social {
+    display: flex;
+    gap: 1rem;
+}
+
+.footer-social a {
+    color: #e0e3ec;
+    font-size: 1.5rem;
+}
+
+.footer-social a:hover {
+    color: #ffffff;
+}
+
+
 
 </style>

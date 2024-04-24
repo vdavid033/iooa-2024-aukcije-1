@@ -146,14 +146,7 @@ app.post("/api/odjava", (req, res) => {
   }
 });
 
-// Primjer zaštićene rute
-app.get("/api/zaštićeno", requireAuth, (req, res) => {
-  res.status(200).json({ message: "Ovo je zaštićena ruta." });
-});
 
-app.listen(port, () => {
-  console.log(`Server pokrenut na http://localhost:${port}`);
-});
 
 // Ruta za dohvaćanje svih predmeta
 app.get("/api/all-predmet", (req, res) => {
