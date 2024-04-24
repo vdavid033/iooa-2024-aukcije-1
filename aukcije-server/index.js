@@ -117,34 +117,35 @@ app.post('/api/prijava', (req, res) => {
 
       // Uspješna prijava
       res.status(200).json({ message: 'Uspješna prijava.', korisnik });
+      
     });
   });
 });
 
-//Provjera prijave
-app.get("/api/check-login", (req, res) => {
-  if (req.session && req.session.userId) {
-    res.status(200).json({ authenticated: true });
-  } else {
-    res.status(200).json({ authenticated: false });
-  }
-});
+// //Provjera prijave
+// app.get("/api/check-login", (req, res) => {
+//   if (req.session && req.session.userId) {
+//     res.status(200).json({ authenticated: true });
+//   } else {
+//     res.status(200).json({ authenticated: false });
+//   }
+// });
 
 
-// Ruta za odjavu
-app.post("/api/odjava", (req, res) => {
-  if (req.session) {
-    req.session.destroy((err) => {
-      if (err) {
-        console.error("Greška prilikom uništavanja sesije:", err);
-        return res.status(500).json({ message: "Došlo je do greške prilikom odjave." });
-      }
-      res.status(200).json({ message: "Odjava uspješna." });
-    });
-  } else {
-    res.status(400).json({ message: "Nema aktivne sesije za uništiti." });
-  }
-});
+// // Ruta za odjavu
+// app.post("/api/odjava", (req, res) => {
+//   if (req.session) {
+//     req.session.destroy((err) => {
+//       if (err) {
+//         console.error("Greška prilikom uništavanja sesije:", err);
+//         return res.status(500).json({ message: "Došlo je do greške prilikom odjave." });
+//       }
+//       res.status(200).json({ message: "Odjava uspješna." });
+//     });
+//   } else {
+//     res.status(400).json({ message: "Nema aktivne sesije za uništiti." });
+//   }
+// });
 
 
 
