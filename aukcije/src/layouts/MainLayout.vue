@@ -177,18 +177,23 @@
     <div class="footer-container container">
       <div class="footer-box">
         <a href="#" class="aukcije_logo"><span>Aukcije</span></a>
-        <div class="social">
-          <a href="https://www.facebook.com/HSAuto2014/"><i class='bx bxl-facebook'></i></a>
-          <a href="https://www.instagram.com/_hs_auto/"><i class='bx bxl-instagram'></i></a>
-          <a href="#"><i class='bx bxl-whatsapp'></i></a>
-        </div>
+    
       </div>
       <div class="footer-box">
         <h3>Stranica</h3>
         <a href="#">Početna</a>
-        <a href="#">Moj Profil</a>
-        <a href="#">Prijava</a>
-        <a href="#">Registracija</a>
+        <router-link to="/Moj_profil" class="link-style">
+            <div>Moj Profil</div>
+        </router-link>
+        <router-link to="/postavi" class="link-style">
+            <div>Dodaj aukciju</div>
+        </router-link>
+        <router-link to="/prijava" class="link-style">
+            <div>Prijava</div>
+        </router-link>
+        <router-link to="/registracija" class="link-style">
+            <div>Registracija</div>
+        </router-link>
       </div>
       <div class="footer-box">
         <h3>Saznaj više</h3>
