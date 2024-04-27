@@ -44,7 +44,6 @@
 </template>
 
 <script>
-// Uvoz funkcije za slanje prijavničkog zahtjeva
 import axios from 'axios';
 
 export default {
@@ -73,20 +72,21 @@ export default {
           lozinka: this.lozinka,
         })
         .then((response) => {
-          if (response.data.korisnik) {
-      //       // Spremanje tokena i korisničkih podataka nakon prijave
-      // const token = response.data.token;
-      // const korisnik = response.data.korisnik;
-
-      // Spremanje tokena u lokalnu pohranu ili Vuex
-      // localStorage.setItem("authToken", token); // Ako koristite lokalnu pohranu
-      this.authenticated = true; // Ažuriranje stanja
-      this.$router.push("/"); // Preusmjeravanje na početnu stranicu
-            this.authenticated = true; // Postavite na true nakon prijave
+          // Provjera je li prijava uspješna
+          if (response.data.token) {
+            // Ako je prijava uspješna, spremite token u lokalno pohranu ili u globalni state
+            const token = response.data.token;
+            localStorage.setItem('token', token); // Spremanje tokena u lokalnu pohranu
+            // Prikaz poruke o uspješnoj prijavi
             this.dialogTitle = 'Uspješna prijava';
             this.dialogMessage = 'Dobrodošli nazad!';
             this.dialog = true;
-            this.$router.push('/'); // Preusmjerite na početnu stranicu
+            // Postavite zastavicu za označavanje da je korisnik prijavljen
+            this.authenticated = true;
+            // Preusmjeravanje na početnu stranicu nakon kratkog vremenskog razmaka
+            setTimeout(() => {
+              this.$router.push("/");
+            }, 2000); // 2 sekunde odgode prije preusmjeravanja
           }
         })
         .catch((error) => {
@@ -102,6 +102,7 @@ export default {
     },
     odjava() {
       this.authenticated = false; // Postavite na false nakon odjave
+      localStorage.removeItem('token'); // Uklonite token iz lokalne pohrane
       this.$router.push('/prijava'); // Preusmjerite na stranicu prijave
     },
     zatvoriDialog() {
@@ -110,8 +111,11 @@ export default {
     },
   },
 };
-
 </script>
+
+
+
+
 
 
 

@@ -1,6 +1,6 @@
 <template>
   <div>
-    <q-card>
+    <q-card :expand="false"> <!-- Promijenjeno sa :opened na :expand -->
       <q-item class="q-pa-sm text-bold text-blue-7" style="font-size: 30px"
         >Kategorije
       </q-item>
@@ -22,35 +22,7 @@
       </div>
     </q-card>
 
-    <q-item class="q-pa-sm text-bold text-blue-7" style="font-size: 30px"
-      >Zadnje ili trenutne aukcije
-    </q-item>
-    <div class="q-pa-sm row flex flex-center">
-      <div
-        v-for="item in items"
-        :key="item.sifra_predmeta"
-        class="q-pa-md"
-        style="width: 400px"
-      >
-        <q-card @click="navigateToItem(item.sifra_predmeta)">
-          <q-img :src="item.slika" no-native-menu />
-          <q-item-section>
-            <q-item class="q-pa-sm text-bold text-blue-7"
-              >{{ item.naziv_predmeta }}
-            </q-item>
-            <q-item>Početna cijena: {{ item.pocetna_cijena }}$</q-item>
-            <q-item
-              >Vrijeme zavrsetka:
-              {{ formattedDate(item.vrijeme_zavrsetka) }}</q-item
-            >
-            <q-item
-              >Preostalo vrijeme aukcije: {{ item.preostalo_vrijeme }} h
-            </q-item>
-            <q-item>Trenutna cijena: {{ item.trenutna_cijena }}$</q-item>
-          </q-item-section>
-        </q-card>
-      </div>
-    </div>
+    <!-- Ostatak sadržaja -->
   </div>
 </template>
 
@@ -90,7 +62,6 @@ export default {
       this.$router.push({ path: "kategorija", query: { sifra_kategorije } });
     },
   },
-  
 };
 </script>
 
@@ -103,3 +74,5 @@ export default {
   max-width: 500px;
 }
 </style>
+
+

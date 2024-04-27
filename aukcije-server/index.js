@@ -3,6 +3,7 @@ const cors = require("cors");
 const bodyParser = require("body-parser");
 const mysql = require("mysql");
 const bcrypt = require('bcrypt');
+const jwt = require("jsonwebtoken");
 
 const app = express();
 const port = 3000;
@@ -29,10 +30,10 @@ connection.connect();
 
 // Registracija korisnika
 app.post('/api/registracija', (req, res) => {
-  const { ime_korisnika, prezime_korisnika, email, lozinka, adresa_korisnika } = req.body;
+  const { ime_korisnika, prezime_korisnika, email, lozinka, adresa_korisnika, uloga } = req.body;
 
   // Provjera jesu li svi potrebni podaci poslani
-  if (!ime_korisnika || !prezime_korisnika || !email || !lozinka || !adresa_korisnika) {
+  if (!ime_korisnika || !prezime_korisnika || !email || !lozinka || !adresa_korisnika || !uloga) {
     return res.status(400).json({ message: 'Svi podaci moraju biti poslani.' });
   }
 
@@ -67,8 +68,8 @@ app.post('/api/registracija', (req, res) => {
         return res.status(500).json({ message: 'Došlo je do greške prilikom hashiranja lozinke.' });
       }
 
-      // Kreiranje novog korisnika s hashiranom lozinkom
-      const noviKorisnik = { ime_korisnika, prezime_korisnika, email, lozinka: hashedPassword, adresa_korisnika };
+      // Kreiranje novog korisnika s hashiranom lozinkom i odabranom ulogom
+      const noviKorisnik = { ime_korisnika, prezime_korisnika, email, lozinka: hashedPassword, adresa_korisnika, uloga };
 
       // Ubacivanje novog korisnika u bazu podataka
       connection.query('INSERT INTO korisnik SET ?', noviKorisnik, (error, result) => {
@@ -81,8 +82,6 @@ app.post('/api/registracija', (req, res) => {
     });
   });
 });
-
-
 
 // Prijava korisnika
 app.post('/api/prijava', (req, res) => {
@@ -116,8 +115,15 @@ app.post('/api/prijava', (req, res) => {
       }
 
       // Uspješna prijava
+      const token = jwt.sign({
+        id: korisnik.id_korisnika,
+        email: korisnik.email,
+        uloga: korisnik.uloga     
+      }, 'tajni_kljuc', { expiresIn: '1h' }); // Postavite vrijeme isteka tokena prema potrebama
+
+      res.status(200).json({ message: 'Uspješna prijava.', token });
       res.status(200).json({ message: 'Uspješna prijava.', korisnik });
-      
+
     });
   });
 });
