@@ -1,13 +1,16 @@
 const express = require("express");
+const session = require("express-session");
+const bcrypt = require("bcrypt");
 const cors = require("cors");
 const bodyParser = require("body-parser");
 const mysql = require("mysql");
-const bcrypt = require('bcrypt');
+const { join } = require("path");
+const path = require("path");
+const multer = require("multer");
+const upload = multer();
 const jwt = require("jsonwebtoken");
 const config = require("../aukcije-server/auth.config.js");
 const authJwt = require("../aukcije-server/authJwt.js");
-
-
 
 const app = express();
 const port = 3000;
@@ -93,7 +96,7 @@ app.post('/api/registracija', (req, res) => {
 
 
 app.post("/api/prijava", (req, res) => {
-  const { email, lozinka } = req.body;
+  const { email, lozinka, data } = req.body;
 
   if (!email || !lozinka) {
     return res.status(400).json({ message: "Svi podaci moraju biti poslani." });
@@ -123,29 +126,25 @@ app.post("/api/prijava", (req, res) => {
       }
 
       // Ako je prijava uspješna, generirajte JWT token
-      const token = jwt.sign(
-        {
-          id: korisnik.id_korisnika,
-          email: korisnik.email_korisnika,
-          uloga: korisnik.uloga,
-        },
-        config.secret,
-        { expiresIn: "1h" } // Token istječe za 1 sat
-      );
+      const token = jwt.sign({ id: result[0].id_korisnika, email:
+        result[0].email_korisnika, uloga: result[0].uloga }, config.secret);
+        res.status(200).json({ success: true, message: "Login successful", 
+        token: token });
+        
 
-      res.status(200).json({
-        success: true,
-        message: "Prijava uspješna.",
-        token: token,
-        korisnik: {
-          id: korisnik.id_korisnika,
-          ime: korisnik.ime_korisnika,
-          prezime: korisnik.prezime_korisnika,
-        },
+      // res.status(200).json({
+      //   success: true,
+      //   message: "Prijava uspješna.",
+      //   token: token,
+      //   korisnik: {
+      //     id: korisnik.id_korisnika,
+      //     ime: korisnik.ime_korisnika,
+      //     prezime: korisnik.prezime_korisnika,
+      //   },
       });
     });
   });
-});
+
 
 
 
@@ -255,14 +254,25 @@ app.post("/api/unos-slike", function (req, res) {
     }
   );
 });
-app.get('/api/all-korisnik', (req, res) => {
+app.get("/api/korisnikinfo/:id", authJwt.verifyTokenAdmin, (req, res) => {
+  const id = req.params.id;
 
-    connection.query('SELECT * FROM korisnik', (error, results) => {
-        if (error) throw error;
+  connection.query("SELECT ime_korisnika, prezime_korisnika, email, adresa_korisnika, lozinka_korisnika FROM korisnik WHERE id_korisnika = ?", [id], (error, results) => {
+    if (error) throw error;
+    res.send(results);
+  });
+});
 
-        res.send(results)
-    })
-})
+app.get("/api/korisnikinfo1/:id", (req, res) => {
+  const id = req.params.id;
+
+  connection.query("SELECT ime_korisnika, prezime_korisnika, email, adresa_korisnika, lozinka_korisnika FROM korisnik WHERE id_korisnika = ?", [id], (error, results) => {
+    if (error) throw error;
+    res.send(results);
+  });
+});
+
+
 
 app.get("/api/all-predmet-with-current-price", (req, res) => {
   connection.query(
@@ -292,3 +302,5 @@ app.get('/api/get-predmet-trenutna-cijena/:id', (req, res) => {
 app.listen(port, () => {
   console.log('Server running at port: ' + port);
 });
+
+
