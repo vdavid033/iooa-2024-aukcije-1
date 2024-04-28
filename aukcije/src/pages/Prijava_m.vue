@@ -74,13 +74,8 @@ export default {
         })
         .then((response) => {
           if (response.data.korisnik) {
-      //       // Spremanje tokena i korisničkih podataka nakon prijave
-      // const token = response.data.token;
-      // const korisnik = response.data.korisnik;
+            localStorage.setItem("token", response.data.token);
 
-      // Spremanje tokena u lokalnu pohranu ili Vuex
-      // localStorage.setItem("authToken", token); // Ako koristite lokalnu pohranu
-      this.authenticated = true; // Ažuriranje stanja
       this.$router.push("/"); // Preusmjeravanje na početnu stranicu
             this.authenticated = true; // Postavite na true nakon prijave
             this.dialogTitle = 'Uspješna prijava';
