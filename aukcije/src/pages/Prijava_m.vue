@@ -1,5 +1,6 @@
 <template>
-  <div>
+  <div v-if="!authenticated">
+    <q-card :expand="false"></q-card>
     <q-page class="bg-blue window-height window-width row justify-center items-center">
       <div class="column">
         <div class="row">
@@ -25,22 +26,16 @@
         </div>
       </div>
     </q-page>
-
-    <!-- Skočni prozor za prikaz poruka -->
-    <q-dialog v-model="dialog" persistent>
-      <q-card class="bg-white q-pa-md" style="width: 300px;">
-        <q-card-section>
-          <q-card-title class="text-center">{{ dialogTitle }}</q-card-title>
-        </q-card-section>
-        <q-card-section>
-          <p class="text-center">{{ dialogMessage }}</p>
-        </q-card-section>
-        <q-card-actions align="center">
-          <q-btn color="primary" label="Zatvori" @click="zatvoriDialog" />
-        </q-card-actions>
-      </q-card>
-    </q-dialog>
   </div>
+  <div v-else>
+    <q-page class="bg-blue window-height window-width row justify-center items-center">
+      <h5 class="text-h3 text-white q-my-md">Dobrodošli nazad!</h5>
+      <q-btn unelevated color="light-blue-7" size="lg" class="full-width" label="Odjava" @click="odjava" />
+    </q-page>
+  </div>
+
+  <!-- Skočni prozor za prikaz poruka -->
+
 </template>
 
 <script>
@@ -56,6 +51,10 @@ export default {
       dialogMessage: '',
       authenticated: false, // Stanje prijavljenosti
     };
+  },
+  created() {
+    // Provjeri prijavu prilikom učitavanja komponente
+    this.provjeriPrijavu();
   },
   methods: {
     prijava() {
@@ -108,6 +107,14 @@ export default {
     zatvoriDialog() {
       // Zatvaranje skočnog prozora za prikaz poruka
       this.dialog = false;
+    },
+    provjeriPrijavu() {
+      // Provjeri prijavu prilikom učitavanja komponente
+      const token = localStorage.getItem('token');
+      if (token) {
+        // Ako postoji token, korisnik je prijavljen
+        this.authenticated = true;
+      }
     },
   },
 };

@@ -8,16 +8,13 @@ const jwt = require("jsonwebtoken");
 const app = express();
 const port = 3000;
 
-
 // Parser za JSON podatke
 app.use(bodyParser.json());
 
 // Parser za podatke iz formi
 app.use(bodyParser.urlencoded({ extended: true }));
 
-
 app.use(cors());
-
 
 const connection = mysql.createConnection({
   host: "student.veleri.hr",
@@ -27,6 +24,32 @@ const connection = mysql.createConnection({
 });
 
 connection.connect();
+
+// Provjera prijave
+app.get("/api/check-login", (req, res) => {
+  const token = req.headers.authorization;
+
+  if (!token) {
+    return res.status(401).json({ authenticated: false });
+  }
+
+  jwt.verify(token, 'tajni_kljuc', (err, decoded) => {
+    if (err) {
+      return res.status(401).json({ authenticated: false });
+    }
+
+    // Ovdje možete dodatno provjeriti autentičnost korisnika u bazi podataka
+
+    res.status(200).json({ authenticated: true });
+  });
+});
+
+// Ruta za odjavu
+app.post("/api/odjava", (req, res) => {
+  // Ovdje uništite sesiju korisnika i obavijestite ih da su odjavljeni
+  // Primjerice, ako koristite JWT, jednostavno ne morate vraćati token u odgovoru
+  res.status(200).json({ message: "Odjava uspješna." });
+});
 
 // Registracija korisnika
 app.post('/api/registracija', (req, res) => {
@@ -122,8 +145,6 @@ app.post('/api/prijava', (req, res) => {
       }, 'tajni_kljuc', { expiresIn: '1h' }); // Postavite vrijeme isteka tokena prema potrebama
 
       res.status(200).json({ message: 'Uspješna prijava.', token });
-      res.status(200).json({ message: 'Uspješna prijava.', korisnik });
-
     });
   });
 });

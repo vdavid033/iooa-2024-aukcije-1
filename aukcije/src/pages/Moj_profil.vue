@@ -1,5 +1,6 @@
 <template>
   <div>
+    <q-card :expand="false"></q-card>
     <!-- podaci o korisniku -->
     <div class="user-info">
       <div class="user-info-header">

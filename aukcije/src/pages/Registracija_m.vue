@@ -1,5 +1,6 @@
 <template>
   <div>
+    <q-card :expand="false"></q-card>
     <q-page class="bg-blue window-height window-width row justify-center items-center">
       <div class="column">
         <div class="row">

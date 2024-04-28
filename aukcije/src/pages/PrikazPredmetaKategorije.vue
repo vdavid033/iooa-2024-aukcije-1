@@ -13,6 +13,7 @@
     </q-item>
   </div>
 </template>
+<q-card :expand="false"></q-card>
 
 <script>
 import { ref } from "vue";

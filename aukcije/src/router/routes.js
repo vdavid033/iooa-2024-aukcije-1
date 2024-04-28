@@ -11,7 +11,11 @@ const routes = [
     children: [
       {
         path: "/",
-        redirect: "/pocetna",
+        redirect: "/pocetna", 
+      },
+      {
+        path: "prijava",
+        component: () => import("pages/Prijava_m.vue"), // Prijava kao prva ruta
       },
       {
         path: "pocetna",
@@ -34,16 +38,12 @@ const routes = [
         component: konverter,
       },
       {
-        path: "prijava",
-        component: () => import("pages/Prijava_m.vue"),
-      },
-      {
         path: "registracija",
         component: () => import("pages/Registracija_m.vue"),
       },
-       {
+      {
         path: "Moj_profil",
-       component: () => import("pages/Moj_profil.vue"),
+        component: () => import("pages/Moj_profil.vue"),
       }
 
     ],

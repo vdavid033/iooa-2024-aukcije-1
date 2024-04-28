@@ -1,5 +1,6 @@
 <template>
   <div>
+    <q-card :expand="false"></q-card>
     <q-card class="q-pa-sm q-gutter-sm" flat bordered>
       <!-- Sadržaj kartice -->
     </q-card>

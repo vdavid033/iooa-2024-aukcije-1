@@ -9,7 +9,6 @@
           icon="menu"
           aria-label="Menu"
           @click="toggleLeftDrawer"
-          
         />
 
         <q-toolbar-title>
@@ -43,7 +42,14 @@
             @click="clearSearch"
           />
 
-          <!-- Prijava, Registracija i Odjava -->
+          <!-- Odjava -->
+          <q-btn
+            v-if="authenticated"
+            label="Odjava"
+            color="negative"
+            @click="odjavaAndClose"
+          />
+          <!-- Prijava i registracija -->
           <router-link
             v-if="!authenticated"
             to="/prijava"
@@ -51,7 +57,6 @@
           >
             <q-btn label="Prijava" color="primary" />
           </router-link>
-
           <router-link
             v-if="!authenticated"
             to="/registracija"
@@ -59,26 +64,17 @@
           >
             <q-btn label="Registracija" color="primary" />
           </router-link>
-
-          <q-btn
-            v-if="authenticated"
-            label="Odjava"
-            color="negative"
-            @click="odjava"
-          />
         </div>
       </q-toolbar>
     </q-header>
 
     <!-- Lijevi izbornik s opcijama -->
     <q-drawer
-    
       v-model="leftDrawerOpen"
       show-if-above
       bordered
       width="280px"
       class="drawer-style"
-      
     >
       <q-list padding>
         <!-- Glavni naslov s dekoracijom -->
@@ -144,7 +140,6 @@
             </q-item-section>
           </q-item>
         </router-link>
-
         <router-link v-if="!authenticated" to="/registracija" class="link-style">
           <q-item clickable>
             <q-item-section avatar>
@@ -157,7 +152,7 @@
         </router-link>
 
         <!-- Odjava za prijavljenog korisnika -->
-        <q-item v-if="authenticated" clickable @click="odjava">
+        <q-item v-if="authenticated" clickable @click="odjavaAndClose">
           <q-item-section avatar>
             <q-icon name="logout" color="negative" />
           </q-item-section>
@@ -235,9 +230,9 @@ export default defineComponent({
       this.search = '';
     },
     mounted() {
-    // Zatvori lijevi drawer prilikom prvog otvaranja stranice
-    this.leftDrawerOpen = false;
-  },
+      // Zatvori lijevi drawer prilikom prvog otvaranja stranice
+      this.leftDrawerOpen = false;
+    },
     odjava() {
       this.authenticated = false;
       // Logika za odjavu
@@ -377,3 +372,6 @@ export default defineComponent({
 
 
 </style>
+
+
+
