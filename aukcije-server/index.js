@@ -3,6 +3,11 @@ const cors = require("cors");
 const bodyParser = require("body-parser");
 const mysql = require("mysql");
 const bcrypt = require('bcrypt');
+const jwt = require("jsonwebtoken");
+const config = require("../aukcije-server/auth.config.js");
+const authJwt = require("../aukcije-server/authJwt.js");
+
+
 
 const app = express();
 const port = 3000;
@@ -84,68 +89,63 @@ app.post('/api/registracija', (req, res) => {
 
 
 
-// Prijava korisnika
-app.post('/api/prijava', (req, res) => {
+// Prijava korisnika s generiranjem JWT tokena
+
+
+app.post("/api/prijava", (req, res) => {
   const { email, lozinka } = req.body;
 
   if (!email || !lozinka) {
-    return res.status(400).json({ message: 'Svi podaci moraju biti poslani.' });
+    return res.status(400).json({ message: "Svi podaci moraju biti poslani." });
   }
 
   // Traženje korisnika prema e-mailu
-  connection.query('SELECT * FROM korisnik WHERE email = ?', [email], (error, results) => {
+  connection.query("SELECT * FROM korisnik WHERE email = ?", [email], (error, results) => {
     if (error) {
-      console.error('Greška prilikom dohvaćanja korisnika:', error);
-      return res.status(500).json({ message: 'Došlo je do greške prilikom prijave.' });
+      console.error("Greška prilikom dohvaćanja korisnika:", error);
+      return res.status(500).json({ message: "Došlo je do greške prilikom prijave." });
     }
 
     if (results.length === 0) {
-      return res.status(404).json({ message: 'Korisnik nije pronađen.' });
+      return res.status(404).json({ message: "Korisnik nije pronađen." });
     }
 
     const korisnik = results[0];
 
-    bcrypt.compare(lozinka, korisnik.lozinka, (compareError, result) => {
+    bcrypt.compare(lozinka, korisnik.lozinka, (compareError, isMatch) => {
       if (compareError) {
-        console.error('Greška prilikom usporedbe lozinke:', compareError);
-        return res.status(500).json({ message: 'Došlo je do greške prilikom prijave.' });
+        console.error("Greška prilikom usporedbe lozinke:", compareError);
+        return res.status(500).json({ message: "Došlo je do greške prilikom prijave." });
       }
 
-      if (!result) {
-        return res.status(401).json({ message: 'Neispravna lozinka.' });
+      if (!isMatch) {
+        return res.status(401).json({ message: "Neispravna lozinka." });
       }
 
-      // Uspješna prijava
-      res.status(200).json({ message: 'Uspješna prijava.', korisnik });
-      
+      // Ako je prijava uspješna, generirajte JWT token
+      const token = jwt.sign(
+        {
+          id: korisnik.id_korisnika,
+          email: korisnik.email_korisnika,
+          uloga: korisnik.uloga,
+        },
+        config.secret,
+        { expiresIn: "1h" } // Token istječe za 1 sat
+      );
+
+      res.status(200).json({
+        success: true,
+        message: "Prijava uspješna.",
+        token: token,
+        korisnik: {
+          id: korisnik.id_korisnika,
+          ime: korisnik.ime_korisnika,
+          prezime: korisnik.prezime_korisnika,
+        },
+      });
     });
   });
 });
-
-// //Provjera prijave
-// app.get("/api/check-login", (req, res) => {
-//   if (req.session && req.session.userId) {
-//     res.status(200).json({ authenticated: true });
-//   } else {
-//     res.status(200).json({ authenticated: false });
-//   }
-// });
-
-
-// // Ruta za odjavu
-// app.post("/api/odjava", (req, res) => {
-//   if (req.session) {
-//     req.session.destroy((err) => {
-//       if (err) {
-//         console.error("Greška prilikom uništavanja sesije:", err);
-//         return res.status(500).json({ message: "Došlo je do greške prilikom odjave." });
-//       }
-//       res.status(200).json({ message: "Odjava uspješna." });
-//     });
-//   } else {
-//     res.status(400).json({ message: "Nema aktivne sesije za uništiti." });
-//   }
-// });
 
 
 
