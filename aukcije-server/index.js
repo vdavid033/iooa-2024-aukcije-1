@@ -4,6 +4,8 @@ const bodyParser = require("body-parser");
 const mysql = require("mysql");
 const { join } = require("path");
 const path = require("path");
+const multer = require("multer");
+
 
 const app = express();
 const port = 3000;
@@ -18,12 +20,14 @@ app.use(bodyParser.urlencoded({ extended: true }));
 app.use(express.static(path.join(__dirname, "public")));
 app.use(cors({ origin: "*" }));
 
+
 const connection = mysql.createConnection({
   host: "student.veleri.hr",
   user: "iooa-aukcije",
   password: "11",
   database: "iooa-aukcije",
 });
+
 
 connection.connect();
 
@@ -37,7 +41,7 @@ app.get("/api/all-korisnik", (req, res) => {
 });
 
 app.post('/unosPredmeta', function (request, response) {
-    const data = request.body;
+  const data = request.body;
     predmet = [[data.sifra_predmeta, data.naziv_predmeta,  data.opis_predmeta, data.slika, data.vrijeme_pocetka, data.vrijeme_zavrsetka, data.pocetna_cijena, data.svrha_donacije, data.id_korisnika, data.sifra_kategorije]]
     connection.query('INSERT INTO predmet (sifra_predmeta, naziv_predmeta,  opis_predmeta, slika, vrijeme_pocetka, vrijeme_zavrsetka, pocetna_cijena, svrha_donacije, id_korisnika, sifra_kategorije) VALUES ?',
     [predmet], function (error, results, fields) {
@@ -126,19 +130,20 @@ app.get('/api/get-predmet/:id', (req, res) => {
       return response.send({ error: false, data: results, message: 'Dodali se trenutnu ponudu.' });
     });
   });
+
+  //Unos slike
 app.post("/api/unos-slike", function (req, res) {
   const data = req.body;
-  const slika = data.slika;
+  const slika = data.compressedFile;
 
   connection.query(
     "INSERT INTO predmet (slika) VALUES (?)",
     [slika],
     function (error, results, fields) {
       if (error) {
-        console.error(error);
+        console.error("Pogreška unosa slike u bazu", error);
         return res.status(500).send({
-          error: true,
-          message: "Dogodila se greška prilikom dodavanja teksta.",
+          message: "Dogodila se greška prilikom unosa slike u bazu."
         });
       }
       return res.send({
@@ -149,6 +154,7 @@ app.post("/api/unos-slike", function (req, res) {
     }
   );
 });
+
 app.get('/api/all-korisnik', (req, res) => {
 
     connection.query('SELECT * FROM korisnik', (error, results) => {
