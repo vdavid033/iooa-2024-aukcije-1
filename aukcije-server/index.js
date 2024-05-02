@@ -252,7 +252,7 @@ app.post("/api/unos-slike", function (req, res) {
 app.get("/api/korisnikinfo/:id", authJwt.verifyTokenAdmin, (req, res) => {
   const id = req.params.id;
 
-  connection.query("SELECT ime_korisnika, prezime_korisnika, email, adresa_korisnika, lozinka_korisnika FROM korisnik WHERE id_korisnika = ?", [id], (error, results) => {
+  connection.query("SELECT ime_korisnika, prezime_korisnika, email, adresa_korisnika, lozinka FROM korisnik WHERE id_korisnika = ?", [id], (error, results) => {
     if (error) throw error;
     res.send(results);
   });
@@ -261,7 +261,7 @@ app.get("/api/korisnikinfo/:id", authJwt.verifyTokenAdmin, (req, res) => {
 app.get("/api/korisnikinfo1/:id", (req, res) => {
   const id = req.params.id;
 
-  connection.query("SELECT ime_korisnika, prezime_korisnika, email, adresa_korisnika, lozinka_korisnika FROM korisnik WHERE id_korisnika = ?", [id], (error, results) => {
+  connection.query("SELECT ime_korisnika, prezime_korisnika, email, adresa_korisnika, lozinka FROM korisnik WHERE id_korisnika = ?", [id], (error, results) => {
     if (error) throw error;
     res.send(results);
   });
