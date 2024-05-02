@@ -2,170 +2,111 @@
   <q-layout view="lHh Lpr lFf">
     <q-header elevated>
       <q-toolbar>
-        <q-btn
-          flat
-          dense
-          round
-          icon="menu"
-          aria-label="Menu"
-          @click="toggleLeftDrawer"
-        />
-
+        <q-btn flat dense round icon="menu" aria-label="Menu" @click="toggleLeftDrawer" />
         <q-toolbar-title>
-          <router-link to="/">
+          <router-link to="/" class="link-style">
             <q-avatar>
-              <img src="~assets/aukcije_logo.jpg" alt="Logo" />
+              <img src="~assets\aukcije_logo.jpg" alt="Logo" />
             </q-avatar>
           </router-link>
         </q-toolbar-title>
-
-        <q-space />
-
-        <div class="row items-center">
-          <!-- Pretraga -->
-          <q-input
-            v-model="search"
-            filled
-            placeholder="Pretraga"
-            dense
-            class="w-200"
-            @keyup.enter="searchItems"
-          />
-          <q-btn
-            icon="search"
-            color="primary"
-            @click="searchItems"
-          />
-          <q-btn
-            icon="clear"
-            color="primary"
-            @click="clearSearch"
-          />
-
-          <!-- Odjava -->
-          <q-btn
-            v-if="authenticated"
-            label="Odjava"
-            color="negative"
-            @click="odjavaAndClose"
-          />
-          <!-- Prijava i registracija -->
-          <router-link
-            v-if="!authenticated"
-            to="/prijava"
-            class="q-mr-md link-style"
-          >
-            <q-btn label="Prijava" color="primary" />
-          </router-link>
-          <router-link
-            v-if="!authenticated"
-            to="/registracija"
-            class="q-mr-md link-style"
-          >
-            <q-btn label="Registracija" color="primary" />
-          </router-link>
-        </div>
-      </q-toolbar>
-    </q-header>
-
-    <!-- Lijevi izbornik s opcijama -->
-    <q-drawer
-      v-model="leftDrawerOpen"
-      show-if-above
-      bordered
-      width="280px"
-      class="drawer-style"
-    >
-      <q-list padding>
-        <!-- Glavni naslov s dekoracijom -->
-        <q-item-label header class="text-bold drawer-header">
-          Glavni izbornik
-        </q-item-label>
-
-        <div class="spacer"></div>
-
-        <!-- Navigacijski linkovi s ikonama -->
-        <router-link to="/" class="link-style">
-          <q-item clickable>
-            <q-item-section avatar>
-              <q-icon name="home" color="primary" />
-            </q-item-section>
-            <q-item-section>
-              Početna stranica
-            </q-item-section>
-          </q-item>
-        </router-link>
-
-        <router-link to="/postavi" class="link-style">
-          <q-item clickable>
-            <q-item-section avatar>
-              <q-icon name="add_circle" color="green" />
-            </q-item-section>
-            <q-item-section>
-              Dodaj aukciju
-            </q-item-section>
-          </q-item>
-        </router-link>
-
-        <router-link to="/Moj_profil" class="link-style">
-          <q-item clickable>
-            <q-item-section avatar>
-              <q-icon name="account_circle" color="blue" />
-            </q-item-section>
-            <q-item-section>
-              Moj profil
-            </q-item-section>
-          </q-item>
-        </router-link>
-
-        <router-link v-if="authenticated" to="/moji-predmeti" class="link-style">
-          <q-item clickable>
-            <q-item-section avatar>
-              <q-icon name="inventory_2" color="orange" />
-            </q-item-section>
-            <q-item-section>
-              Moji predmeti
-            </q-item-section>
-          </q-item>
-        </router-link>
+        <q-space></q-space>
+        <q-space /><q-space /><q-space /><q-space /><q-space /><q-space /><q-space /><q-space />
 
         <!-- Prijava i registracija samo ako korisnik nije prijavljen -->
-        <router-link v-if="!authenticated" to="/prijava" class="link-style">
-          <q-item clickable>
-            <q-item-section avatar>
-              <q-icon name="login" color="purple" />
-            </q-item-section>
-            <q-item-section>
-              Prijava
-            </q-item-section>
-          </q-item>
-        </router-link>
-        <router-link v-if="!authenticated" to="/registracija" class="link-style">
-          <q-item clickable>
-            <q-item-section avatar>
-              <q-icon name="person_add" color="red" />
-            </q-item-section>
-            <q-item-section>
-              Registracija
-            </q-item-section>
-          </q-item>
-        </router-link>
+         <!-- Prikazivanje gumba na temelju stanja autentikacije -->
+         <template v-if="!isAuthenticated()">
+          <router-link to="/prijava">
+            <q-btn label="Prijava" color="primary" class="q-mr-md" />
+          </router-link>
 
-        <!-- Odjava za prijavljenog korisnika -->
-        <q-item v-if="authenticated" clickable @click="odjavaAndClose">
+          <router-link to="/registracija">
+            <q-btn label="Registracija" color="primary" class="q-mr-md" />
+          </router-link>
+        </template>
+
+        <template v-if="isAuthenticated()">
+          <q-btn label="Odjava" color="negative" class="q-mr-md" @click="confirmLogout" />
           <q-item-section avatar>
             <q-icon name="logout" color="negative" />
           </q-item-section>
-          <q-item-section>
-            Odjava
-          </q-item-section>
-        </q-item>
+        </template>
+      </q-toolbar>
+    </q-header>
+
+    <q-drawer v-model="leftDrawerOpen" bordered>
+      <q-list>
+        <q-item-label header class="text-bold text-black"> Mogućnosti </q-item-label>
+
+        <div class="q-pa-sm col">
+          <!--        Za navigaciju bez otvaranja novog tab-a-->
+          <template v-if="!isAuthenticated()">
+            <div class="q-pa-sm col">
+              <router-link to="/prijava" class="link-style" @click="toggleLeftDrawerClose">
+                <q-btn class="flex flex-center" style="width: 280px" icon= "login"> Prijava </q-btn>
+              </router-link>
+            </div>
+            <div class="q-pa-sm col">
+              <router-link to="/registracija" class="link-style" @click="toggleLeftDrawerClose">
+                <q-btn class="flex flex-center" style="width: 280px" icon= "person_add"> Registracija </q-btn>
+              </router-link>
+            </div>
+          </template>
+          <div class="q-pa-sm col">
+            <router-link to="/" class="link-style" @click="toggleLeftDrawerClose">
+              <q-btn class="flex flex-center" style="width: 280px" icon= "home" color="primary"> Početna stranica </q-btn>
+          
+            </router-link>
+          </div>
+          <template v-if="isAuthenticated()">
+          <div class="q-pa-sm col">
+  <router-link to="/postavi" class="link-style" @click="toggleLeftDrawerClose">
+    <q-btn
+      icon="add_circle" 
+      color= "primary" 
+      label="Dodaj aukciju"  
+      class="flex flex-center"
+      style="width: 280px"
+    />
+  </router-link>
+</div>
+<div class="q-pa-sm col">
+            <router-link to="/Moj_profil" class="link-style" @click="toggleLeftDrawerClose">
+              <q-btn class="flex flex-center" style="width: 280px" icon= "account_circle"> Moj profil </q-btn>
+            </router-link>
+          </div>
+</template>
+
+          
+          <template v-if="isAdmin()">
+            <div class="q-pa-sm col">
+              <router-link to="/admin/" class="link-style" @click="toggleLeftDrawer">
+                <q-btn class="flex flex-center" color="primary" style="width: 280px">Admin Dashboard</q-btn>
+              </router-link>
+            </div>
+          </template>
+        </div>
       </q-list>
     </q-drawer>
 
     <q-page-container>
       <router-view />
     </q-page-container>
+
+    <!-- Logout Confirmation Dialog -->
+    <q-dialog v-model="confirmLogoutDialog" persistent>
+      <q-card>
+        <q-card-section class="row items-center">
+          <q-avatar icon="warning" color="negative" text-color="white" />
+          <span class="q-ml-sm">Jeste li sigurni da želite se odjaviti?</span>
+        </q-card-section>
+
+        <q-card-actions align="right">
+          <q-btn flat label="Odustani" color="primary" v-close-popup />
+          <q-btn flat label="Odjavi se" color="negative" @click="logoutAndReload" />
+        </q-card-actions>
+      </q-card>
+    </q-dialog>
   </q-layout>
 
   <section class="footer">
@@ -177,12 +118,6 @@
       <div class="footer-box">
         <h3>Stranica</h3>
         <a href="#">Početna</a>
-        <router-link to="/Moj_profil" class="link-style">
-            <div>Moj Profil</div>
-        </router-link>
-        <router-link to="/postavi" class="link-style">
-            <div>Dodaj aukciju</div>
-        </router-link>
         <router-link to="/prijava" class="link-style">
             <div>Prijava</div>
         </router-link>
@@ -203,44 +138,77 @@
 
     </div>
   </section>
+
 </template>
 
 
 <script>
-import { defineComponent } from 'vue';
+//import { defineComponent } from 'vue';
 import axios from 'axios';
 
-export default defineComponent({
-  data() {
-    return {
-      leftDrawerOpen: false,
-      authenticated: false,
-      search: '',
-    };
-  },
+import { defineComponent, ref, computed } from "vue";
+import { jwtDecode } from "jwt-decode";
 
-  methods: {
-    toggleLeftDrawer() {
-      this.leftDrawerOpen = !this.leftDrawerOpen;
-    },
-    searchItems() {
-      // Logika za pretragu
-    },
-    clearSearch() {
-      this.search = '';
-    },
-    mounted() {
-      // Zatvori lijevi drawer prilikom prvog otvaranja stranice
-      this.leftDrawerOpen = false;
-    },
-    odjava() {
-      this.authenticated = false;
-      // Logika za odjavu
-    },
-    odjavaAndClose() {
-      this.odjava(); // Odjava i zatvaranje izbornika
-      this.closeLeftDrawer();
-    },
+export default defineComponent({
+  name: "MainLayout",
+
+  setup() {
+    const leftDrawerOpen = ref(false);
+    const confirmLogoutDialog = ref(false);
+
+    const token = ref(localStorage.getItem("token"));
+
+    const decodeToken = (token) => {
+      try {
+        const decoded = jwtDecode(token);
+        return decoded.uloga;
+      } catch (error) {
+        console.error("Error decoding token:", error);
+        return null;
+      }
+    };
+
+    const isAdmin = () => {
+      if (isAuthenticated() && token.value) {
+        return decodeToken(token.value) === "admin";
+      }
+      return false;
+    };
+
+    const isAuthenticated = () => {
+      const token = localStorage.getItem("token");
+      return !!token;
+    };
+
+    const toggleLeftDrawer = () => {
+      leftDrawerOpen.value = !leftDrawerOpen.value;
+    };
+
+    const toggleLeftDrawerClose = () => {
+      leftDrawerOpen.value = false;
+    };
+
+    const confirmLogout = () => {
+      confirmLogoutDialog.value = true;
+    };
+
+    const logoutAndReload = () => {
+      // Clear JWT token from local storage
+      localStorage.removeItem("token");
+      // Reload the page
+      window.location.reload();
+    };
+
+    return {
+      leftDrawerOpen,
+      confirmLogoutDialog,
+      isAuthenticated,
+      isAdmin,
+      toggleLeftDrawer,
+      toggleLeftDrawerClose,
+      confirmLogout,
+      logoutAndReload,
+    };
   },
 });
 </script>

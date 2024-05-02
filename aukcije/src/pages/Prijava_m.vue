@@ -71,12 +71,11 @@ export default {
           lozinka: this.lozinka,
         })
         .then((response) => {
-          // Provjera je li prijava uspješna
-          if (response.data.token) {
-            // Ako je prijava uspješna, spremite token u lokalno pohranu ili u globalni state
-            const token = response.data.token;
-            localStorage.setItem('token', token); // Spremanje tokena u lokalnu pohranu
-            // Prikaz poruke o uspješnoj prijavi
+          if (response.data.korisnik) {
+            localStorage.setItem("token", response.data.token);
+
+      this.$router.push("/"); // Preusmjeravanje na početnu stranicu
+            this.authenticated = true; // Postavite na true nakon prijave
             this.dialogTitle = 'Uspješna prijava';
             this.dialogMessage = 'Dobrodošli nazad!';
             this.dialog = true;
