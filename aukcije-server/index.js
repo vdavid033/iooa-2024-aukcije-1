@@ -102,35 +102,33 @@ app.post("/api/prijava", (req, res) => {
     return res.status(400).json({ message: "Svi podaci moraju biti poslani." });
   }
 
-  // Traženje korisnika prema e-mailu
   connection.query("SELECT * FROM korisnik WHERE email = ?", [email], (error, results) => {
     if (error) {
-      console.error("Greška prilikom dohvaćanja korisnika:", error);
-      return res.status(500).json({ message: "Došlo je do greške prilikom prijave." });
+      console.error("GreĹˇka prilikom dohvaÄ‡anja korisnika:", error);
+      return res.status(500).json({ message: "DoĹˇlo je do greĹˇke prilikom prijave." });
     }
 
     if (results.length === 0) {
-      return res.status(404).json({ message: "Korisnik nije pronađen." });
+      return res.status(404).json({ message: "Korisnik nije pronaÄ‘en." });
     }
 
     const korisnik = results[0];
 
     bcrypt.compare(lozinka, korisnik.lozinka, (compareError, isMatch) => {
       if (compareError) {
-        console.error("Greška prilikom usporedbe lozinke:", compareError);
-        return res.status(500).json({ message: "Došlo je do greške prilikom prijave." });
+        console.error("GreĹˇka prilikom usporedbe lozinke:", compareError);
+        return res.status(500).json({ message: "DoĹˇlo je do greĹˇke prilikom prijave." });
       }
 
       if (!isMatch) {
         return res.status(401).json({ message: "Neispravna lozinka." });
       }
 
-      // Ako je prijava uspješna, generirajte JWT token
-      const token = jwt.sign({ id: result[0].id_korisnika, email:
-        result[0].email_korisnika, uloga: result[0].uloga }, config.secret);
-        res.status(200).json({ success: true, message: "Login successful", 
-        token: token });
-        
+      const token = jwt.sign({ id: results[0].id_korisnika, email: results[0].email_korisnika, uloga: results[0].uloga }, config.secret);
+      res.status(200).json({ success: true, message: "Prijava uspjeĹˇna.", token: token, korisnik: { id: korisnik.id_korisnika, ime: korisnik.ime_korisnika, prezime: korisnik.prezime_korisnika } });
+    });
+  });
+});
 
       // res.status(200).json({
       //   success: true,
@@ -141,10 +139,7 @@ app.post("/api/prijava", (req, res) => {
       //     ime: korisnik.ime_korisnika,
       //     prezime: korisnik.prezime_korisnika,
       //   },
-      });
-    });
-  });
-
+   
 
 
 
@@ -302,5 +297,3 @@ app.get('/api/get-predmet-trenutna-cijena/:id', (req, res) => {
 app.listen(port, () => {
   console.log('Server running at port: ' + port);
 });
-
-
