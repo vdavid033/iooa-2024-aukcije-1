@@ -148,7 +148,7 @@
   display: flex;
   flex-direction: row;
   align-items: center;
-  background-color: #f2f2f2;
+  background-color: #fefdff;
   padding: 20px;
   margin-bottom: 20px;
   width: 100%;
@@ -301,5 +301,90 @@ export default {
     }
   }
 }
-
 </script>
+
+<style>
+
+/* Stilizacija podataka o korisniku */
+
+
+.user-info-header {
+  flex: 1;
+  margin-right: 20px;
+}
+
+.user-info-image {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.user-info-image img {
+  width: 150px;
+  height: 150px;
+  object-fit: cover;
+  border-radius: 50%;
+}
+
+/* Stilizacija kartica */
+.predmet-card {
+  width: 300px;
+  margin: 15px;
+  border-radius: 10px;
+  box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2);
+  transition: box-shadow 0.3s ease-in-out;
+}
+
+.predmet-card:hover {
+  box-shadow: 0 8px 16px 0 rgba(0, 0, 0, 0.3);
+}
+
+.predmet-image {
+  height: 200px;
+  object-fit: cover;
+  border-top-left-radius: 10px;
+  border-top-right-radius: 10px;
+}
+
+/* Stilizacija za sekcije */
+.section-title {
+  margin-top: 20px;
+  font-size: 24px;
+  color: #1976d2;
+  text-align: center;
+  
+}
+/* Grupiranje kartica */
+.card-group {
+  display: flex;
+  justify-content: center;
+}
+
+.card {
+  border: 1px solid #ccc;
+  border-radius: 10px;
+  transition: transform 0.3s ease;
+}
+
+.card:hover {
+  transform: scale(1.05);
+}
+
+.card-img-top {
+  height: 200px;
+  object-fit: cover;
+}
+
+.card-title {
+  font-size: 20px;
+}
+
+.card-description {
+  font-size: 16px;
+}
+
+.card-actions {
+  text-align: center;
+}
+</style>
+

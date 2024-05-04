@@ -268,74 +268,80 @@ export default defineComponent({
   text-decoration: none;
   color: inherit;
 }
+/* Stilovi za footer */
 .footer {
-    background: #2479d9;
-    color: #e0e3ec;
-    border-top: 2px solid var(--main-color);
-    padding: 0.1rem 2rem;
+  background: linear-gradient(135deg, #2479d9, #124b8b); /* Dodana gradacija boja */
+  color: #e0e3ec;
+  border-top: 2px solid var(--main-color);
+  padding: 1.5rem 2rem; /* Dodatni padding za prostranost */
 }
 
 .footer-container {
-    display: flex;
-    justify-content: space-between;
-    flex-wrap: wrap;
-    gap: 1.5rem;
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: flex-start; /* Poravnavanje na vrh */
+  flex-wrap: wrap;
+  gap: 2rem; /* Više prostora između elemenata */
 }
 
-.footer-container .footer-box {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-    max-width: 250px;
+.footer-box {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  max-width: 250px;
 }
 
 .footer-box h3 {
-    font-size: 1.2rem;
-    font-weight: 600;
-    margin-bottom: 1rem;
-    color: #ffffff;
+  font-size: 1.5rem; /* Veći font za naslove */
+  font-weight: 700; /* Povećana debljina fonta */
+  margin-bottom: 1rem;
+  color: #ffffff; /* Bijela boja za bolju vidljivost */
 }
 
 .footer-box a,
 .footer-box p {
-    color: #e0e3ec;
-    text-decoration: none;
-    margin-bottom: 10px;
+  color: #e0e3ec; /* Blago svijetla boja za tekst */
+  text-decoration: none;
+  margin-bottom: 10px;
+  transition: color 0.3s ease; /* Glatka tranzicija */
 }
 
 .footer-box a:hover {
-    color: #ffffff;
-    text-decoration: underline;
+  color: #ffffff; /* Promjena boje prilikom hovera */
+  text-decoration: underline;
 }
 
 .footer-button {
-    background: #1e5faa;
-    color: white;
-    padding: 0.5rem 1rem;
-    border: none;
-    border-radius: 5px;
-    text-align: center;
-    cursor: pointer;
-    
+  background: #1e5faa;
+  color: white;
+  padding: 0.5rem 1.5rem; /* Dodatni padding za ugodniji osjećaj */
+  border: none;
+  border-radius: 5px;
+  text-align: center;
+  cursor: pointer;
+  transition: background 0.3s ease; /* Glatki prijelaz */
 }
 
 .footer-button:hover {
-    background: #124b8b;
+  background: #0f3a6c; /* Promjena boje pri hoveru */
 }
 
 .footer-social {
-    display: flex;
-    gap: 1rem;
+  display: flex;
+  gap: 1rem;
 }
 
 .footer-social a {
-    color: #e0e3ec;
-    font-size: 1.5rem;
+  color: #e0e3ec; /* Boja ikona */
+  font-size: 1.5rem; /* Veličina ikona */
+  transition: color 0.3s ease; /* Glatka tranzicija */
 }
 
 .footer-social a:hover {
-    color: #ffffff;
+  color: #ffffff; /* Promjena boje prilikom hovera */
 }
+
 
 
 
