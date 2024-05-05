@@ -1,9 +1,16 @@
 const express = require("express");
+const session = require("express-session");
+const bcrypt = require("bcrypt");
 const cors = require("cors");
 const bodyParser = require("body-parser");
 const mysql = require("mysql");
-const bcrypt = require('bcrypt');
+const { join } = require("path");
+const path = require("path");
+const multer = require("multer");
+const upload = multer();
 const jwt = require("jsonwebtoken");
+const config = require("../aukcije-server/auth.config.js");
+const authJwt = require("../aukcije-server/authJwt.js");
 
 const app = express();
 const port = 3000;
@@ -106,73 +113,56 @@ app.post('/api/registracija', (req, res) => {
   });
 });
 
-// Prijava korisnika
-app.post('/api/prijava', (req, res) => {
-  const { email, lozinka } = req.body;
+
+
+// Prijava korisnika s generiranjem JWT tokena
+
+
+app.post("/api/prijava", (req, res) => {
+  const { email, lozinka, data } = req.body;
 
   if (!email || !lozinka) {
-    return res.status(400).json({ message: 'Svi podaci moraju biti poslani.' });
+    return res.status(400).json({ message: "Svi podaci moraju biti poslani." });
   }
 
-  // Traženje korisnika prema e-mailu
-  connection.query('SELECT * FROM korisnik WHERE email = ?', [email], (error, results) => {
+  connection.query("SELECT * FROM korisnik WHERE email = ?", [email], (error, results) => {
     if (error) {
-      console.error('Greška prilikom dohvaćanja korisnika:', error);
-      return res.status(500).json({ message: 'Došlo je do greške prilikom prijave.' });
+      console.error("GreĹˇka prilikom dohvaÄ‡anja korisnika:", error);
+      return res.status(500).json({ message: "DoĹˇlo je do greĹˇke prilikom prijave." });
     }
 
     if (results.length === 0) {
-      return res.status(404).json({ message: 'Korisnik nije pronađen.' });
+      return res.status(404).json({ message: "Korisnik nije pronaÄ‘en." });
     }
 
     const korisnik = results[0];
 
-    bcrypt.compare(lozinka, korisnik.lozinka, (compareError, result) => {
+    bcrypt.compare(lozinka, korisnik.lozinka, (compareError, isMatch) => {
       if (compareError) {
-        console.error('Greška prilikom usporedbe lozinke:', compareError);
-        return res.status(500).json({ message: 'Došlo je do greške prilikom prijave.' });
+        console.error("GreĹˇka prilikom usporedbe lozinke:", compareError);
+        return res.status(500).json({ message: "DoĹˇlo je do greĹˇke prilikom prijave." });
       }
 
-      if (!result) {
-        return res.status(401).json({ message: 'Neispravna lozinka.' });
+      if (!isMatch) {
+        return res.status(401).json({ message: "Neispravna lozinka." });
       }
 
-      // Uspješna prijava
-      const token = jwt.sign({
-        id: korisnik.id_korisnika,
-        email: korisnik.email,
-        uloga: korisnik.uloga     
-      }, 'tajni_kljuc', { expiresIn: '1h' }); // Postavite vrijeme isteka tokena prema potrebama
-
-      res.status(200).json({ message: 'Uspješna prijava.', token });
+      const token = jwt.sign({ id: results[0].id_korisnika, email: results[0].email_korisnika, uloga: results[0].uloga }, config.secret);
+      res.status(200).json({ success: true, message: "Prijava uspjeĹˇna.", token: token, korisnik: { id: korisnik.id_korisnika, ime: korisnik.ime_korisnika, prezime: korisnik.prezime_korisnika } });
     });
   });
 });
 
-// //Provjera prijave
-// app.get("/api/check-login", (req, res) => {
-//   if (req.session && req.session.userId) {
-//     res.status(200).json({ authenticated: true });
-//   } else {
-//     res.status(200).json({ authenticated: false });
-//   }
-// });
-
-
-// // Ruta za odjavu
-// app.post("/api/odjava", (req, res) => {
-//   if (req.session) {
-//     req.session.destroy((err) => {
-//       if (err) {
-//         console.error("Greška prilikom uništavanja sesije:", err);
-//         return res.status(500).json({ message: "Došlo je do greške prilikom odjave." });
-//       }
-//       res.status(200).json({ message: "Odjava uspješna." });
-//     });
-//   } else {
-//     res.status(400).json({ message: "Nema aktivne sesije za uništiti." });
-//   }
-// });
+      // res.status(200).json({
+      //   success: true,
+      //   message: "Prijava uspješna.",
+      //   token: token,
+      //   korisnik: {
+      //     id: korisnik.id_korisnika,
+      //     ime: korisnik.ime_korisnika,
+      //     prezime: korisnik.prezime_korisnika,
+      //   },
+   
 
 
 
@@ -282,14 +272,25 @@ app.post("/api/unos-slike", function (req, res) {
     }
   );
 });
-app.get('/api/all-korisnik', (req, res) => {
+app.get("/api/korisnikinfo/:id", authJwt.verifyTokenAdmin, (req, res) => {
+  const id = req.params.id;
 
-    connection.query('SELECT * FROM korisnik', (error, results) => {
-        if (error) throw error;
+  connection.query("SELECT ime_korisnika, prezime_korisnika, email, adresa_korisnika, lozinka FROM korisnik WHERE id_korisnika = ?", [id], (error, results) => {
+    if (error) throw error;
+    res.send(results);
+  });
+});
 
-        res.send(results)
-    })
-})
+app.get("/api/korisnikinfo1/:id", (req, res) => {
+  const id = req.params.id;
+
+  connection.query("SELECT ime_korisnika, prezime_korisnika, email, adresa_korisnika, lozinka FROM korisnik WHERE id_korisnika = ?", [id], (error, results) => {
+    if (error) throw error;
+    res.send(results);
+  });
+});
+
+
 
 app.get("/api/all-predmet-with-current-price", (req, res) => {
   connection.query(
