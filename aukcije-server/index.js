@@ -15,13 +15,10 @@ const authJwt = require("../aukcije-server/authJwt.js");
 const app = express();
 const port = 3000;
 
-// Parser za JSON podatke
 app.use(bodyParser.json());
-
-// Parser za podatke iz formi
 app.use(bodyParser.urlencoded({ extended: true }));
 
-app.use(cors());
+app.use(cors({ origin: "*" }));
 
 const connection = mysql.createConnection({
   host: "student.veleri.hr",
@@ -32,7 +29,6 @@ const connection = mysql.createConnection({
 
 connection.connect();
 
-// Provjera prijave
 app.get("/api/check-login", (req, res) => {
   const token = req.headers.authorization;
 
@@ -45,63 +41,44 @@ app.get("/api/check-login", (req, res) => {
       return res.status(401).json({ authenticated: false });
     }
 
-    // Ovdje možete dodatno provjeriti autentičnost korisnika u bazi podataka
-
     res.status(200).json({ authenticated: true });
   });
 });
 
-// Ruta za odjavu
 app.post("/api/odjava", (req, res) => {
-  // Ovdje uništite sesiju korisnika i obavijestite ih da su odjavljeni
-  // Primjerice, ako koristite JWT, jednostavno ne morate vraćati token u odgovoru
   res.status(200).json({ message: "Odjava uspješna." });
 });
 
-// Registracija korisnika
 app.post('/api/registracija', (req, res) => {
-  const { ime_korisnika, prezime_korisnika, email, lozinka, adresa_korisnika, uloga } = req.body;
+  const { ime_korisnika, prezime_korisnika, email, lozinka, adresa_korisnika } = req.body;
 
-  // Provjera jesu li svi potrebni podaci poslani
-  if (!ime_korisnika || !prezime_korisnika || !email || !lozinka || !adresa_korisnika || !uloga) {
+  if (!ime_korisnika || !prezime_korisnika || !email || !lozinka || !adresa_korisnika ) {
     return res.status(400).json({ message: 'Svi podaci moraju biti poslani.' });
   }
 
-  // Provjera valjanosti e-mail adrese
   const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
   if (!emailRegex.test(email)) {
     return res.status(400).json({ message: 'Unesena e-mail adresa nije valjana.' });
   }
 
-  // Provjera imena i prezimena
-  const nameRegex = /^[a-zA-ZčćžšđČĆŽŠĐ\s\-']+$/;
-  if (!nameRegex.test(ime_korisnika) || !nameRegex.test(prezime_korisnika)) {
-    return res.status(400).json({ message: 'Ime i prezime mogu sadržavati samo slova, razmake i neke posebne znakove (-, \', i šćčžđ).' });
-  }
-
-  // Provjera postojanja e-maila u bazi podataka
   connection.query('SELECT * FROM korisnik WHERE email = ?', [email], (error, results) => {
     if (error) {
       console.error('Greška prilikom provjere postojanja e-maila:', error);
       return res.status(500).json({ message: 'Došlo je do greške prilikom provjere postojanja e-maila.' });
     }
 
-    // Ako već postoji korisnik s istom e-mail adresom, odbiti registraciju
     if (results.length > 0) {
       return res.status(409).json({ message: 'Korisnik s tom e-mail adresom već postoji.' });
     }
 
-    // Hashiranje lozinke prije spremanja u bazu podataka
     bcrypt.hash(lozinka, 10, (error, hashedPassword) => {
       if (error) {
         console.error('Greška pri hashiranju lozinke:', error);
         return res.status(500).json({ message: 'Došlo je do greške prilikom hashiranja lozinke.' });
       }
 
-      // Kreiranje novog korisnika s hashiranom lozinkom i odabranom ulogom
-      const noviKorisnik = { ime_korisnika, prezime_korisnika, email, lozinka: hashedPassword, adresa_korisnika, uloga };
+      const noviKorisnik = { ime_korisnika, prezime_korisnika, email, lozinka: hashedPassword, adresa_korisnika };
 
-      // Ubacivanje novog korisnika u bazu podataka
       connection.query('INSERT INTO korisnik SET ?', noviKorisnik, (error, result) => {
         if (error) {
           console.error('Greška prilikom upisa korisnika:', error);
@@ -113,11 +90,6 @@ app.post('/api/registracija', (req, res) => {
   });
 });
 
-
-
-// Prijava korisnika s generiranjem JWT tokena
-
-
 app.post("/api/prijava", (req, res) => {
   const { email, lozinka, data } = req.body;
 
@@ -127,49 +99,31 @@ app.post("/api/prijava", (req, res) => {
 
   connection.query("SELECT * FROM korisnik WHERE email = ?", [email], (error, results) => {
     if (error) {
-      console.error("GreĹˇka prilikom dohvaÄ‡anja korisnika:", error);
-      return res.status(500).json({ message: "DoĹˇlo je do greĹˇke prilikom prijave." });
+      console.error("Greška prilikom dohvaćanja korisnika:", error);
+      return res.status(500).json({ message: "Došlo je do greške prilikom prijave." });
     }
 
     if (results.length === 0) {
-      return res.status(404).json({ message: "Korisnik nije pronaÄ‘en." });
+      return res.status(404).json({ message: "Korisnik nije pronađen." });
     }
 
     const korisnik = results[0];
 
     bcrypt.compare(lozinka, korisnik.lozinka, (compareError, isMatch) => {
       if (compareError) {
-        console.error("GreĹˇka prilikom usporedbe lozinke:", compareError);
-        return res.status(500).json({ message: "DoĹˇlo je do greĹˇke prilikom prijave." });
+        console.error("Greška prilikom usporedbe lozinke:", compareError);
+        return res.status(500).json({ message: "Došlo je do greške prilikom prijave." });
       }
 
       if (!isMatch) {
         return res.status(401).json({ message: "Neispravna lozinka." });
       }
 
-      // Ako je prijava uspješna, generirajte JWT token
-      const token = jwt.sign({ id: result[0].id_korisnika, email:
-        result[0].email_korisnika, uloga: result[0].uloga }, config.secret);
-        res.status(200).json({ success: true, message: "Login successful", 
-        token: token });
-        
-
-      // res.status(200).json({
-      //   success: true,
-      //   message: "Prijava uspješna.",
-      //   token: token,
-      //   korisnik: {
-      //     id: korisnik.id_korisnika,
-      //     ime: korisnik.ime_korisnika,
-      //     prezime: korisnik.prezime_korisnika,
-      //   },
-      });
+      const token = jwt.sign({ id: results[0].id_korisnika, email: results[0].email_korisnika, uloga: results[0].uloga }, config.secret);
+      res.status(200).json({ success: true, message: "Prijava uspješna.", token: token, korisnik: { id: korisnik.id_korisnika, ime: korisnik.ime_korisnika, prezime: korisnik.prezime_korisnika } });
     });
   });
-
-
-
-
+});
 // Ruta za dohvaćanje svih predmeta
 app.get("/api/all-predmet", (req, res) => {
   connection.query(

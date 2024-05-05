@@ -16,13 +16,6 @@
                 <q-input square filled clearable v-model="lozinka" type="password" label="Lozinka" />
                 <!-- Dodano polje za unos adrese -->
                 <q-input square filled clearable v-model="adresa_korisnika" type="text" label="Vaša adresa" />
-                <!-- Dodani select za odabir uloge -->
-                <q-select
-                  outlined
-                  v-model="uloga"
-                  :options="uloge"
-                  label="Odaberi ulogu"
-                />
               </q-form>
             </q-card-section>
             <q-card-actions class="q-px-md">
@@ -64,8 +57,6 @@ export default {
       email: '',
       lozinka: '',
       adresa_korisnika: '',
-      uloga: 'Korisnik', // Defaultni odabir je Korisnik
-      uloge: ['Korisnik', 'Administrator'], // Opcije za odabir uloge
       dialog: false,
       dialogTitle: '',
       dialogMessage: '',
@@ -114,8 +105,7 @@ export default {
         prezime_korisnika: this.prezime_korisnika,
         email: this.email,
         lozinka: this.lozinka,
-        adresa_korisnika: this.adresa_korisnika,
-        uloga: this.uloga // Dodavanje uloge u podatke za slanje
+        adresa_korisnika: this.adresa_korisnika
       })
       .then(response => {
         // Ako je registracija uspješna, postavljamo poruku za skočni prozor
@@ -159,4 +149,5 @@ export default {
   }
 };
 </script>
+
 
