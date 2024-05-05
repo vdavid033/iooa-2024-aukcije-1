@@ -147,11 +147,12 @@ app.post("/api/prijava", (req, res) => {
         return res.status(401).json({ message: "Neispravna lozinka." });
       }
 
-      const token = jwt.sign({ id: results[0].id_korisnika, email: results[0].email_korisnika, uloga: results[0].uloga }, config.secret);
-      res.status(200).json({ success: true, message: "Prijava uspjeĹˇna.", token: token, korisnik: { id: korisnik.id_korisnika, ime: korisnik.ime_korisnika, prezime: korisnik.prezime_korisnika } });
-    });
-  });
-});
+      // Ako je prijava uspješna, generirajte JWT token
+      const token = jwt.sign({ id: result[0].id_korisnika, email:
+        result[0].email_korisnika, uloga: result[0].uloga }, config.secret);
+        res.status(200).json({ success: true, message: "Login successful", 
+        token: token });
+        
 
       // res.status(200).json({
       //   success: true,
@@ -162,7 +163,10 @@ app.post("/api/prijava", (req, res) => {
       //     ime: korisnik.ime_korisnika,
       //     prezime: korisnik.prezime_korisnika,
       //   },
-   
+      });
+    });
+  });
+
 
 
 
