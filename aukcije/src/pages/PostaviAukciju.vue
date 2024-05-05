@@ -108,7 +108,7 @@
                 transition-show="scale"
                 transition-hide="scale"
               >
-                <q-date v-model="date" mask="YYYY-MM-DD HH:mm" ref="datePicker" readonly>
+                <q-date v-model="vrijemePocetka" mask="YYYY-MM-DD HH:mm" ref="datePicker">
                   <div class="row items-center justify-right">
                     <q-btn v-close-popup label="Close" color="primary" flat />
                   </div>
@@ -124,7 +124,7 @@
                 transition-show="scale"
                 transition-hide="scale"
               >
-                <q-time v-model="time" mask="YYYY-MM-DD HH:mm" format24h readonly>
+                <q-time v-model="vrijemePocetka" mask="YYYY-MM-DD HH:mm" format24h>
                   <div class="row items-center justify-right">
                     <q-btn v-close-popup label="Close" color="primary" flat />
                   </div>
@@ -343,25 +343,19 @@ export default {
     },
   },
 
-  created () {
-    // Initialize date and time when the component is created
-    const now = new Date();
-    now.setHours(now.getHours() + 2);
-    this.vrijemePocetka = now.toISOString().slice(0, 16).replace('T', ' ');
-  },
-
  //Ažuriranje vremena i datuma
   setup () {
-    const vrijemeZavrsetka2 = ref(null); // Initialize with null or any default value
-
+    const vrijemeZavrsetka2 =  ref(null);// Initialize with null or any default value
+    const vrijemePocetka = ref(null);
     // You can also set an initial value for vrijemeZavrsetka if needed
     const currentDate = new Date();
     currentDate.setHours(currentDate.getHours() + 2); // Adding 2 hours to the current time
     vrijemeZavrsetka2.value = currentDate.toISOString().slice(0, 16).replace('T', ' ');
-
+    vrijemePocetka.value = currentDate.toISOString().slice(0, 16).replace('T', ' ');
     // Return vrijemeZavrsetka to make it accessible in the component
     return {
-      vrijemeZavrsetka2
+      vrijemeZavrsetka2,
+      vrijemePocetka
     };
   }
 };
