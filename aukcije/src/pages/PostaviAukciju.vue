@@ -98,7 +98,8 @@
     <div class="text-h6 text-bold text-left text-blue-7 q-ml-sm">
       Početak aukcije
     </div>
-    <div class="q-ml-sm flex flex-start q-gutter-sm" style="max-width: 300px">
+    <div class="q-ml-sm flex flex-start q-gutter-sm">
+      <div style="width: 300px">
         <q-input filled v-model="vrijemePocetka" label="Datum i vrijeme početka aukcije">
           <template v-slot:prepend>
             <q-icon name="event" class="cursor-pointer">
@@ -134,36 +135,47 @@
           </template>
         </q-input>
       </div>
+    </div>
     <div class="text-h6 text-bold text-left text-blue-7 q-ml-sm">
       Završetak aukcije
     </div>
+  <div class="q-ml-sm flex flex-start q-gutter-sm">
+    <div style="width: 300px">
+      <q-input filled v-model="vrijemeZavrsetka2" label="Datum i vrijeme završetka aukcije">
+        <template v-slot:prepend>
+          <q-icon name="event" class="cursor-pointer">
+            <q-popup-proxy
+              cover
+              transition-show="scale"
+              transition-hide="scale"
+            >
+              <q-date v-model="vrijemeZavrsetka2" mask="YYYY-MM-DD HH:mm">
+                <div class="row items-center justify-right">
+                  <q-btn v-close-popup label="Close" color="primary" flat />
+                </div>
+              </q-date>
+            </q-popup-proxy>
+          </q-icon>
+        </template>
 
-  <div class="q-ml-sm flex flex-start q-gutter-sm" style="max-width: 300px">
-    <q-input filled v-model="date2" label="Datum i vrijeme završetka aukcije">
-      <template v-slot:prepend>
-        <q-icon name="event" class="cursor-pointer">
-          <q-popup-proxy cover transition-show="scale" transition-hide="scale">
-            <q-date v-model="date2" mask="YYYY-MM-DD HH:mm">
-              <div class="row items-center justify-end">
-                <q-btn v-close-popup label="Close" color="primary" flat />
-              </div>
-            </q-date>
-          </q-popup-proxy>
-        </q-icon>
-      </template>
-
-      <template v-slot:append>
-        <q-icon name="access_time" class="cursor-pointer">
-          <q-popup-proxy cover transition-show="scale" transition-hide="scale">
-            <q-time v-model="date2" mask="YYYY-MM-DD HH:mm" format24h>
-              <div class="row items-center justify-end">
-                <q-btn v-close-popup label="Close" color="primary" flat />
-              </div>
-            </q-time>
-          </q-popup-proxy>
-        </q-icon>
-      </template>
-    </q-input>
+        <template v-slot:append>
+          <q-icon name="access_time" class="cursor-pointer">
+            <q-popup-proxy
+              cover
+              transition-show="scale"
+              transition-hide="scale"
+            >
+              <q-time v-model="vrijemeZavrsetka2" mask="YYYY-MM-DD HH:mm" format24h>
+                <div class="row items-center justify-right">
+                  <q-btn v-close-popup label="Close" color="primary" flat />
+                </div>
+              </q-time>
+            </q-popup-proxy>
+          </q-icon>
+        </template>
+        
+      </q-input>
+    </div>
   </div>
     <div style="width: 500px">
       <q-input
@@ -193,7 +205,7 @@
         @click="submitForm"
         color="green"
         class="q-ml-sm"
-      />
+        :rules="[handleSubmit]"/> 
       <q-btn label="Otkaži" type="submit" color="red" class="q-ml-sm" />
     </div>
 
@@ -236,8 +248,9 @@ export default {
       compressedImage: null,
       imageUrl: "",
       showDialog: false,
-      vrijemePocetka: null,
-      vrijemeZavrsetka: null,
+      //vrijemePocetka: null,
+      //vrijemeZavrsetka: null,
+      
 
       categories: [
         { name: "Namjestaj", value: "1" },
@@ -310,7 +323,7 @@ export default {
         opis_predmeta: this.opis_predmeta,
         slika: this.compressedImage,
         vrijeme_pocetka: this.vrijemePocetka,
-        vrijeme_zavrsetka: this.vrijemeZavrsetka,
+        vrijeme_zavrsetka: this.vrijemeZavrsetka2,
         pocetna_cijena: this.pocetna_cijena,
         svrha_donacije: this.selectedCategory2,
         id_korisnika: this.selectedCategory3,
@@ -335,15 +348,21 @@ export default {
     const now = new Date();
     now.setHours(now.getHours() + 2);
     this.vrijemePocetka = now.toISOString().slice(0, 16).replace('T', ' ');
-
   },
 
-  //Ažuriranje vremena i datuma
-  
+ //Ažuriranje vremena i datuma
   setup () {
+    const vrijemeZavrsetka2 = ref(null); // Initialize with null or any default value
+
+    // You can also set an initial value for vrijemeZavrsetka if needed
+    const currentDate = new Date();
+    currentDate.setHours(currentDate.getHours() + 2); // Adding 2 hours to the current time
+    vrijemeZavrsetka2.value = currentDate.toISOString().slice(0, 16).replace('T', ' ');
+
+    // Return vrijemeZavrsetka to make it accessible in the component
     return {
-      date2: ref('2024-02-01 12:44')
-    }
+      vrijemeZavrsetka2
+    };
   }
 };
 
