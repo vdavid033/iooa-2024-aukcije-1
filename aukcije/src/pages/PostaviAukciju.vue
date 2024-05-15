@@ -54,7 +54,7 @@
           v-model="pocetna_cijena"
           lazy-rules
           :rules="[
-            (val) => (val !== null && val !== '') || 'Unesite početnu cijenu',
+            [rules.required, rules.price],
           ]"
         />
       </div>
@@ -95,47 +95,15 @@
         />
       </div>
     </div>
+    <div class="text-h6 text-bold text-left text-blue-7 q-ml-sm">
+      Početak aukcije
+    </div>
     <div class="q-ml-sm flex flex-start q-gutter-sm">
       <div style="width: 300px">
-        <q-input filled v-model="vrijemePocetka" label="Datum i vrijeme početka aukcije">
-          <template v-slot:prepend>
-            <q-icon name="event" class="cursor-pointer">
-              <q-popup-proxy
-                cover
-                transition-show="scale"
-                transition-hide="scale"
-              >
-                <q-date v-model="date" mask="YYYY-MM-DD HH:mm" ref="datePicker">
-                  <div class="row items-center justify-end">
-                    <q-btn v-close-popup label="Close" color="primary" flat />
-                  </div>
-                </q-date>
-              </q-popup-proxy>
-            </q-icon>
-          </template>
-
-          <template v-slot:append>
-            <q-icon name="access_time" class="cursor-pointer">
-              <q-popup-proxy
-                cover
-                transition-show="scale"
-                transition-hide="scale"
-              >
-                <q-time v-model="date" mask="YYYY-MM-DD HH:mm" format24h>
-                  <div class="row items-center justify-end">
-                    <q-btn v-close-popup label="Close" color="primary" flat />
-                  </div>
-                </q-time>
-              </q-popup-proxy>
-            </q-icon>
-          </template>
-        </q-input>
-      </div>
-      <div style="width: 300px">
-        <q-input
-          filled
-          v-model="vrijemeZavrsetka"
-          label="Datum i vrijeme završetka aukcije"
+        <q-input 
+        filled 
+        v-model="vrijemePocetka" 
+        label="Datum i vrijeme početka aukcije"
         >
           <template v-slot:prepend>
             <q-icon name="event" class="cursor-pointer">
@@ -144,8 +112,11 @@
                 transition-show="scale"
                 transition-hide="scale"
               >
-                <q-date v-model="date2" mask="YYYY-MM-DD HH:mm" ref="datePicker">
-                  <div class="row items-center justify-end">
+                <q-date 
+                v-model="vrijemePocetka" 
+                mask="YYYY-MM-DD HH:mm" ref="datePicker"
+                >
+                  <div class="row items-center justify-right">
                     <q-btn v-close-popup label="Close" color="primary" flat />
                   </div>
                 </q-date>
@@ -160,18 +131,65 @@
                 transition-show="scale"
                 transition-hide="scale"
               >
-                <q-time v-model="date2" mask="YYYY-MM-DD HH:mm" format24h>
-                  <div class="row items-center justify-end">
-                    <q-btn v-close-popup label="Close" color="primary" flat />
+                <q-time 
+                v-model="vrijemePocetka" 
+                mask="YYYY-MM-DD HH:mm" 
+                format24h>
+                  <div class="row items-center justify-right">
+                    <q-btn 
+                    v-close-popup label="Close" 
+                    color="primary" flat />
                   </div>
+                  
                 </q-time>
               </q-popup-proxy>
             </q-icon>
           </template>
         </q-input>
+      <div v-if="dateError" class="text-red">{{ dateErrorMessage }}</div>
       </div>
     </div>
+    <div class="text-h6 text-bold text-left text-blue-7 q-ml-sm">
+      Završetak aukcije
+    </div>
+  <div class="q-ml-sm flex flex-start q-gutter-sm">
+    <div style="width: 300px">
+      <q-input filled v-model="vrijemeZavrsetka2" label="Datum i vrijeme završetka aukcije">
+        <template v-slot:prepend>
+          <q-icon name="event" class="cursor-pointer">
+            <q-popup-proxy
+              cover
+              transition-show="scale"
+              transition-hide="scale"
+            >
+              <q-date v-model="vrijemeZavrsetka2" mask="YYYY-MM-DD HH:mm">
+                <div class="row items-center justify-right">
+                  <q-btn v-close-popup label="Close" color="primary" flat />
+                </div>
+              </q-date>
+            </q-popup-proxy>
+          </q-icon>
+        </template>
 
+        <template v-slot:append>
+          <q-icon name="access_time" class="cursor-pointer">
+            <q-popup-proxy
+              cover
+              transition-show="scale"
+              transition-hide="scale"
+            >
+              <q-time v-model="vrijemeZavrsetka2" mask="YYYY-MM-DD HH:mm" format24h>
+                <div class="row items-center justify-right">
+                  <q-btn v-close-popup label="Close" color="primary" flat />
+                </div>
+              </q-time>
+            </q-popup-proxy>
+          </q-icon>
+        </template>
+        
+      </q-input>
+    </div>
+  </div>
     <div style="width: 500px">
       <q-input
         ref="opisPredmetaRef"
@@ -185,20 +203,11 @@
     </div>
 
     <div>
-      <input type="file" @change="onFileChange" />
-
-      <q-btn @click="convertImage">Spremi sliku</q-btn>
       <q-separator></q-separator>
-      <div v-if="base64Image">
-        <img :src="base64Image" />
-        <q-separator></q-separator>
-
-        <div
-          class="q-pa-sm"
-          style="max-width: 700px; overflow-wrap: break-word"
-        ></div>
+      <div>
+        <input type="file" @change="onFileChange">
+        <img v-if="compressedImage" :src="compressedImage" alt="Compressed Image">
       </div>
-
       <div>
         <q-separator></q-separator>
       </div>
@@ -209,7 +218,7 @@
         @click="submitForm"
         color="green"
         class="q-ml-sm"
-      />
+        :rules="[handleSubmit]"/> 
       <q-btn label="Otkaži" type="submit" color="red" class="q-ml-sm" />
     </div>
 
@@ -232,6 +241,9 @@
 <script>
 import imageCompression from "browser-image-compression";
 import axios from "axios";
+import { ref } from 'vue';
+import { time } from 'console';
+
 
 export default {
   data() {
@@ -245,13 +257,15 @@ export default {
       pocetna_cijena: "",
       slika: null,
       file: null,
-      base64Image: null,
-      base64Text: null,
+      originalImage: null,
+      compressedImage: null,
       imageUrl: "",
       showDialog: false,
-      vrijemePocetka: null,
-      vrijemeZavrsetka: null,
-
+      dateError: false,
+      dateErrorMessage: '',
+      //vrijemePocetka: null,
+      //vrijemeZavrsetka: null,
+      
       categories: [
         { name: "Namjestaj", value: "1" },
         { name: "Automobili", value: "2" },
@@ -270,51 +284,49 @@ export default {
         { name: "Dorijan", value: "3" },
         { name: "Dario", value: "4" },
       ],
+
+      rules: {
+      required: value => !!value || 'Unesite početnu cijenu',
+      price: value => /^\d+(\.\d{1,2})?$/.test(value) || 'Unesite početnu cijenu (x.xx format)'
+    },
     };
   },
+
   methods: {
     async onFileChange(e) {
-      this.file = e.target.files[0];
-      await this.convertImage();
-    },
-    async convertImage() {
-      if (!this.file && !this.imageUrl) {
-        return alert("Molimo odaberite sliku ili unesite URL slike.");
-      }
-
+      const file = e.target.files[0];
       const options = {
         maxSizeMB: 1,
-        maxWidthOrHeight: 1920,
+        maxWidthOrHeight: 1024,
         useWebWorker: true,
       };
 
       try {
-        let compressedFile;
+        const compressedFile = await imageCompression(file, options);
+        const compressedImageDataUrl = URL.createObjectURL(compressedFile);
+        this.compressedImage = compressedImageDataUrl;
 
-        if (this.imageUrl) {
-          const response = await fetch(this.imageUrl);
-          const blob = await response.blob();
-          compressedFile = await imageCompression(blob, options);
-        } else {
-          compressedFile = await imageCompression(this.file, options);
-        }
-
-        const reader = new FileReader();
-        reader.readAsDataURL(compressedFile);
-        reader.onload = () => {
-          this.base64Image = reader.result;
-          this.base64Text = reader.result.replace(
-            /^data:image\/[a-z]+;base64,/,
-            ""
-          );
-          this.slika = "data:image/jpg;base64," + this.base64Text;
-        };
-        reader.onerror = (error) => {
-          console.error(error);
-        };
+        await this.uploadFile(compressedFile);
       } catch (error) {
         console.error(error);
         return alert("Došlo je do pogreške prilikom kompresije slike.");
+      }
+      const originalImageDataUrl = URL.createObjectURL(file);
+      this.originalImage = originalImageDataUrl;
+    },
+
+    async uploadFile(file) {
+      try {
+        // Create FormData object to send file data
+        const formData = new FormData();
+        formData.append("file", file);
+
+        // Send POST request to server to save file
+        const response = await axios.post("/upload", formData);
+
+        console.log("File uploaded successfully:", response.data);
+      } catch (error) {
+        console.error("Error uploading file:", error);
       }
     },
 
@@ -323,14 +335,66 @@ export default {
       window.location.reload();
     },
 
+    validateDates() {
+  const start = new Date(this.vrijemePocetka);
+  const end = new Date(this.vrijemeZavrsetka2);
+  const now = new Date();
+
+  if (start < now) {
+    this.dateError = true;
+    this.dateErrorMessage = "Datum i vrijeme početka aukcije ne mogu biti u prošlosti.";
+    return false;
+  } else if (start >= end) {
+    this.dateError = true;
+    this.dateErrorMessage = "Datum završetka mora biti nakon datuma početka aukcije.";
+    return false;
+  }
+  
+  this.dateError = false;
+  this.dateErrorMessage = "";
+  return true;
+},
+
+validateForm() {
+      // Validate all input fields and the image upload
+      const isFieldsFilled = this.naziv_predmeta && this.selectedCategory1 && this.pocetna_cijena &&
+                             this.selectedCategory2 && this.selectedCategory3 && this.opis_predmeta &&
+                             this.vrijemePocetka && this.vrijemeZavrsetka2;
+      const isImageUploaded = this.compressedImage;
+
+      if (!isFieldsFilled || !isImageUploaded) {
+        const missingFieldsMsg = "Sva polja moraju biti ispunjena. Slika mora biti dodana.";
+        this.showMessageBox(missingFieldsMsg);
+        return false;
+      }
+      return true;
+    },
+    showMessageBox(message) {
+      this.$q.dialog({
+        title: 'Pogreška',
+        message: message,
+        ok: true,
+        persistent: true
+      });
+    },
+
     async submitForm() {
+      if (!this.validateDates() && !this.validateForm()) {
+      this.$q.dialog({
+        title: 'Pogreška',
+        message: this.dateErrorMessage,
+        ok: true,
+        persistent: true
+      });
+      return;
+    }
       const sampleData = {
         sifra_predmeta: this.sifra_predmeta,
         naziv_predmeta: this.naziv_predmeta,
         opis_predmeta: this.opis_predmeta,
-        slika: this.slika,
+        slika: this.compressedImage,
         vrijeme_pocetka: this.vrijemePocetka,
-        vrijeme_zavrsetka: this.vrijemeZavrsetka,
+        vrijeme_zavrsetka: this.vrijemeZavrsetka2,
         pocetna_cijena: this.pocetna_cijena,
         svrha_donacije: this.selectedCategory2,
         id_korisnika: this.selectedCategory3,
@@ -349,11 +413,37 @@ export default {
       }
     },
   },
-  mounted() {
-    const now = new Date();
-    now.setHours(now.getHours() + 2);
-    this.vrijemePocetka = now.toISOString().slice(0, 16);
-    this.vrijemeZavrsetka = this.vrijemePocetka;
+
+ //Ažuriranje vremena i datuma
+  setup () {
+    const vrijemeZavrsetka2 =  ref(null);// Initialize with null or any default value
+    const vrijemePocetka = ref(null);
+    // You can also set an initial value for vrijemeZavrsetka if needed
+    const currentDate = new Date();
+    currentDate.setHours(currentDate.getHours() + 2); // Adding 2 hours to the current time
+    vrijemeZavrsetka2.value = currentDate.toISOString().slice(0, 16).replace('T', ' ');
+    vrijemePocetka.value = currentDate.toISOString().slice(0, 16).replace('T', ' ');
+    // Return vrijemeZavrsetka to make it accessible in the component
+    return {
+      vrijemeZavrsetka2,
+      vrijemePocetka
+    };
   },
+  watch: {
+    vrijemePocetka(newVal, oldVal) {
+    if (newVal !== oldVal) {
+      this.validateDates();
+    }
+  },
+  vrijemeZavrsetka2(newVal, oldVal) {
+    if (newVal !== oldVal && this.vrijemePocetka) {
+      this.validateDates();
+    }
+  },
+  pocetna_cijena(newVal) {
+    this.rules.price(newVal); // This will apply the price rule dynamically
+  },
+}
 };
+
 </script>

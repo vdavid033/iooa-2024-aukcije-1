@@ -20,12 +20,14 @@ app.use(bodyParser.urlencoded({ extended: true }));
 
 app.use(cors({ origin: "*" }));
 
+
 const connection = mysql.createConnection({
   host: "student.veleri.hr",
   user: "iooa-aukcije",
   password: "11",
   database: "iooa-aukcije",
 });
+
 
 connection.connect();
 
@@ -207,19 +209,20 @@ app.get('/api/get-predmet/:id', (req, res) => {
       return response.send({ error: false, data: results, message: 'Dodali se trenutnu ponudu.' });
     });
   });
+
+  //Unos slike
 app.post("/api/unos-slike", function (req, res) {
   const data = req.body;
-  const slika = data.slika;
+  const slika = data.compressedFile;
 
   connection.query(
     "INSERT INTO predmet (slika) VALUES (?)",
     [slika],
     function (error, results, fields) {
       if (error) {
-        console.error(error);
+        console.error("Pogreška unosa slike u bazu", error);
         return res.status(500).send({
-          error: true,
-          message: "Dogodila se greška prilikom dodavanja teksta.",
+          message: "Dogodila se greška prilikom unosa slike u bazu."
         });
       }
       return res.send({
