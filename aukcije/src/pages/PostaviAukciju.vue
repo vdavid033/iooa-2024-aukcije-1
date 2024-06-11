@@ -49,7 +49,7 @@
         <q-input
           ref="pocetnaCijenaRef"
           filled
-          type="double"
+          type="number"
           label="Početna cijena proizvoda"
           v-model="pocetna_cijena"
           lazy-rules
@@ -101,9 +101,9 @@
     <div class="q-ml-sm flex flex-start q-gutter-sm">
       <div style="width: 300px">
         <q-input 
-        filled 
-        v-model="vrijemePocetka" 
-        label="Datum i vrijeme početka aukcije"
+          filled 
+          v-model="vrijemePocetka" 
+          label="Datum i vrijeme početka aukcije"
         >
           <template v-slot:prepend>
             <q-icon name="event" class="cursor-pointer">
@@ -113,8 +113,8 @@
                 transition-hide="scale"
               >
                 <q-date 
-                v-model="vrijemePocetka" 
-                mask="YYYY-MM-DD HH:mm" ref="datePicker"
+                  v-model="vrijemePocetka" 
+                  mask="YYYY-MM-DD HH:mm" ref="datePicker"
                 >
                   <div class="row items-center justify-right">
                     <q-btn v-close-popup label="Close" color="primary" flat />
@@ -132,64 +132,65 @@
                 transition-hide="scale"
               >
                 <q-time 
-                v-model="vrijemePocetka" 
-                mask="YYYY-MM-DD HH:mm" 
-                format24h>
+                  v-model="vrijemePocetka" 
+                  mask="YYYY-MM-DD HH:mm" 
+                  format24h
+                >
                   <div class="row items-center justify-right">
-                    <q-btn 
-                    v-close-popup label="Close" 
-                    color="primary" flat />
+                    <q-btn v-close-popup label="Close" color="primary" flat />
                   </div>
-                  
                 </q-time>
               </q-popup-proxy>
             </q-icon>
           </template>
         </q-input>
-      <div v-if="dateError" class="text-red">{{ dateErrorMessage }}</div>
+        <div v-if="dateError" class="text-red">{{ dateErrorMessage }}</div>
       </div>
     </div>
     <div class="text-h6 text-bold text-left text-blue-7 q-ml-sm">
       Završetak aukcije
     </div>
-  <div class="q-ml-sm flex flex-start q-gutter-sm">
-    <div style="width: 300px">
-      <q-input filled v-model="vrijemeZavrsetka2" label="Datum i vrijeme završetka aukcije">
-        <template v-slot:prepend>
-          <q-icon name="event" class="cursor-pointer">
-            <q-popup-proxy
-              cover
-              transition-show="scale"
-              transition-hide="scale"
-            >
-              <q-date v-model="vrijemeZavrsetka2" mask="YYYY-MM-DD HH:mm">
-                <div class="row items-center justify-right">
-                  <q-btn v-close-popup label="Close" color="primary" flat />
-                </div>
-              </q-date>
-            </q-popup-proxy>
-          </q-icon>
-        </template>
+    <div class="q-ml-sm flex flex-start q-gutter-sm">
+      <div style="width: 300px">
+        <q-input 
+          filled 
+          v-model="vrijemeZavrsetka2" 
+          label="Datum i vrijeme završetka aukcije"
+        >
+          <template v-slot:prepend>
+            <q-icon name="event" class="cursor-pointer">
+              <q-popup-proxy
+                cover
+                transition-show="scale"
+                transition-hide="scale"
+              >
+                <q-date v-model="vrijemeZavrsetka2" mask="YYYY-MM-DD HH:mm">
+                  <div class="row items-center justify-right">
+                    <q-btn v-close-popup label="Close" color="primary" flat />
+                  </div>
+                </q-date>
+              </q-popup-proxy>
+            </q-icon>
+          </template>
 
-        <template v-slot:append>
-          <q-icon name="access_time" class="cursor-pointer">
-            <q-popup-proxy
-              cover
-              transition-show="scale"
-              transition-hide="scale"
-            >
-              <q-time v-model="vrijemeZavrsetka2" mask="YYYY-MM-DD HH:mm" format24h>
-                <div class="row items-center justify-right">
-                  <q-btn v-close-popup label="Close" color="primary" flat />
-                </div>
-              </q-time>
-            </q-popup-proxy>
-          </q-icon>
-        </template>
-        
-      </q-input>
+          <template v-slot:append>
+            <q-icon name="access_time" class="cursor-pointer">
+              <q-popup-proxy
+                cover
+                transition-show="scale"
+                transition-hide="scale"
+              >
+                <q-time v-model="vrijemeZavrsetka2" mask="YYYY-MM-DD HH:mm" format24h>
+                  <div class="row items-center justify-right">
+                    <q-btn v-close-popup label="Close" color="primary" flat />
+                  </div>
+                </q-time>
+              </q-popup-proxy>
+            </q-icon>
+          </template>
+        </q-input>
+      </div>
     </div>
-  </div>
     <div style="width: 500px">
       <q-input
         ref="opisPredmetaRef"
@@ -218,7 +219,7 @@
         @click="submitForm"
         color="green"
         class="q-ml-sm"
-        :rules="[handleSubmit]"/> 
+      />
       <q-btn label="Otkaži" type="submit" color="red" class="q-ml-sm" />
     </div>
 
@@ -238,12 +239,11 @@
     </q-dialog>
   </q-card>
 </template>
+
 <script>
 import imageCompression from "browser-image-compression";
 import axios from "axios";
 import { ref } from 'vue';
-import { time } from 'console';
-
 
 export default {
   data() {
@@ -263,8 +263,6 @@ export default {
       showDialog: false,
       dateError: false,
       dateErrorMessage: '',
-      //vrijemePocetka: null,
-      //vrijemeZavrsetka: null,
       
       categories: [
         { name: "Namjestaj", value: "1" },
@@ -286,9 +284,9 @@ export default {
       ],
 
       rules: {
-      required: value => !!value || 'Unesite početnu cijenu',
-      price: value => /^\d+(\.\d{1,2})?$/.test(value) || 'Unesite početnu cijenu (x.xx format)'
-    },
+        required: value => !!value || 'Unesite početnu cijenu',
+        price: value => /^\d+(\.\d{1,2})?$/.test(value) || 'Unesite početnu cijenu (x.xx format)'
+      },
     };
   },
 
@@ -309,12 +307,9 @@ export default {
         const compressedBase64 = await this.convertToBase64(compressedFile);
         
         this.compressedImage = compressedBase64;
-
-        // If you want to upload the base64 string to the server, call uploadFile
-        await this.uploadFile(compressedBase64);
       } catch (error) {
         console.error("Error during image compression:", error);
-        return alert("Došlo je do pogreške prilikom kompresije slike.");
+        alert("Došlo je do pogreške prilikom kompresije slike.");
       }
 
       const originalImageDataUrl = URL.createObjectURL(file);
@@ -330,44 +325,32 @@ export default {
       });
     },
 
-    async uploadFile(base64Image) {
-      try {
-        // Send POST request to server to save the base64 image string
-        const response = await axios.post("http://localhost:3000/api/unos-slike", { image: base64Image });
-
-        console.log("File uploaded successfully:", response.data);
-      } catch (error) {
-        console.error("Error uploading file:", error);
-        alert("Došlo je do pogreške prilikom prijenosa datoteke.");
-      }
-    },
-
     closeAndReload() {
       this.showDialog = false;
       window.location.reload();
     },
 
     validateDates() {
-  const start = new Date(this.vrijemePocetka);
-  const end = new Date(this.vrijemeZavrsetka2);
-  const now = new Date();
+      const start = new Date(this.vrijemePocetka);
+      const end = new Date(this.vrijemeZavrsetka2);
+      const now = new Date();
 
-  if (start < now) {
-    this.dateError = true;
-    this.dateErrorMessage = "Datum i vrijeme početka aukcije ne mogu biti u prošlosti.";
-    return false;
-  } else if (start >= end) {
-    this.dateError = true;
-    this.dateErrorMessage = "Datum završetka mora biti nakon datuma početka aukcije.";
-    return false;
-  }
-  
-  this.dateError = false;
-  this.dateErrorMessage = "";
-  return true;
-},
+      if (start < now) {
+        this.dateError = true;
+        this.dateErrorMessage = "Datum i vrijeme početka aukcije ne mogu biti u prošlosti.";
+        return false;
+      } else if (start >= end) {
+        this.dateError = true;
+        this.dateErrorMessage = "Datum završetka mora biti nakon datuma početka aukcije.";
+        return false;
+      }
+      
+      this.dateError = false;
+      this.dateErrorMessage = "";
+      return true;
+    },
 
-validateForm() {
+    validateForm() {
       // Validate all input fields and the image upload
       const isFieldsFilled = this.naziv_predmeta && this.selectedCategory1 && this.pocetna_cijena &&
                              this.selectedCategory2 && this.selectedCategory3 && this.opis_predmeta &&
@@ -375,12 +358,13 @@ validateForm() {
       const isImageUploaded = this.compressedImage;
 
       if (!isFieldsFilled || !isImageUploaded) {
-        const missingFieldsMsg = "Sva polja moraju biti ispunjena. Slika mora biti dodana.";
+        const missingFieldsMsg = "Molim ispuniti sva polja i dodati sliku.";
         this.showMessageBox(missingFieldsMsg);
         return false;
       }
       return true;
     },
+
     showMessageBox(message) {
       this.$q.dialog({
         title: 'Pogreška',
@@ -391,15 +375,10 @@ validateForm() {
     },
 
     async submitForm() {
-      if (!this.validateDates() && !this.validateForm()) {
-      this.$q.dialog({
-        title: 'Pogreška',
-        message: this.dateErrorMessage,
-        ok: true,
-        persistent: true
-      });
-      return;
-    }
+      if (!this.validateDates() || !this.validateForm()) {
+        return; // Early return if validation fails to avoid double error messages
+      }
+
       const sampleData = {
         sifra_predmeta: this.sifra_predmeta,
         naziv_predmeta: this.naziv_predmeta,
@@ -422,11 +401,11 @@ validateForm() {
         this.showDialog = true;
       } catch (error) {
         console.error(error);
+        this.showMessageBox("Došlo je do pogreške prilikom slanja podataka.");
       }
     },
   },
 
- //Ažuriranje vremena i datuma
   setup () {
     const vrijemeZavrsetka2 =  ref(null);// Initialize with null or any default value
     const vrijemePocetka = ref(null);
@@ -441,21 +420,21 @@ validateForm() {
       vrijemePocetka
     };
   },
+
   watch: {
     vrijemePocetka(newVal, oldVal) {
-    if (newVal !== oldVal) {
-      this.validateDates();
-    }
-  },
-  vrijemeZavrsetka2(newVal, oldVal) {
-    if (newVal !== oldVal && this.vrijemePocetka) {
-      this.validateDates();
-    }
-  },
-  pocetna_cijena(newVal) {
-    this.rules.price(newVal); // This will apply the price rule dynamically
-  },
-}
+      if (newVal !== oldVal) {
+        this.validateDates();
+      }
+    },
+    vrijemeZavrsetka2(newVal, oldVal) {
+      if (newVal !== oldVal && this.vrijemePocetka) {
+        this.validateDates();
+      }
+    },
+    pocetna_cijena(newVal) {
+      this.rules.price(newVal); // This will apply the price rule dynamically
+    },
+  }
 };
-
 </script>
