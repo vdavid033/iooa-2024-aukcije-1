@@ -223,15 +223,37 @@ app.get('/api/get-predmet/:id', (req, res) => {
     });
   });
 
-  //Unos slike
-app.post("/api/unos-slike", function (req, res) {
-  const data = req.body;
-  const slika = data.compressedFile;
+  // Endpoint to retrieve the image
+  app.get("/api/get-image/:id", (req, res) => {
+    const { id } = req.params;
+    connection.query("SELECT slika FROM predmet WHERE sifra_predmeta = ?", [id], (error, results) => {
+      if (error) {
+        console.error("Error fetching image:", error);
+        return res.status(500).send("Error fetching image.");
+      }
+      if (results.length === 0) {
+        return res.status(404).send("Image not found.");
+      }
+      const image = results[0].slika;
+      res.writeHead(200, {
+        "Content-Type": "image/jpeg", // Adjust the content type based on your image format
+        "Content-Length": image.length,
+      });
+      res.end(image);
+    });
+  });
+  
 
-  connection.query(
-    "INSERT INTO predmet (slika) VALUES (?)",
-    [slika],
-    function (error, results, fields) {
+  //Unos slike
+  app.post("/api/unos-slike", (req, res) => {
+    const { image } = req.body;
+  
+    // Decode the base64 string
+    const buffer = Buffer.from(image.split(",")[1], "base64");
+  
+    // Insert the image into the database
+    const sql = "INSERT INTO predmet (slika) VALUES (?)";
+    connection.query(sql, [buffer], (error, results) => {
       if (error) {
         console.error("Pogreška unosa slike u bazu", error);
         return res.status(500).send({
@@ -243,9 +265,9 @@ app.post("/api/unos-slike", function (req, res) {
         data: results,
         message: "Slika je dodana.",
       });
-    }
-  );
-});
+    });
+  });
+  
 app.get("/api/korisnikinfo/:id", authJwt.verifyTokenAdmin, (req, res) => {
   const id = req.params.id;
 

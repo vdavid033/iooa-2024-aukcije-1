@@ -302,31 +302,43 @@ export default {
       };
 
       try {
+        // Compress the image file
         const compressedFile = await imageCompression(file, options);
-        const compressedImageDataUrl = URL.createObjectURL(compressedFile);
-        this.compressedImage = compressedImageDataUrl;
+        
+        // Convert compressed file to base64 string
+        const compressedBase64 = await this.convertToBase64(compressedFile);
+        
+        this.compressedImage = compressedBase64;
 
-        await this.uploadFile(compressedFile);
+        // If you want to upload the base64 string to the server, call uploadFile
+        await this.uploadFile(compressedBase64);
       } catch (error) {
-        console.error(error);
+        console.error("Error during image compression:", error);
         return alert("Došlo je do pogreške prilikom kompresije slike.");
       }
+
       const originalImageDataUrl = URL.createObjectURL(file);
       this.originalImage = originalImageDataUrl;
     },
 
-    async uploadFile(file) {
-      try {
-        // Create FormData object to send file data
-        const formData = new FormData();
-        formData.append("file", file);
+    convertToBase64(file) {
+      return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = () => resolve(reader.result);
+        reader.onerror = error => reject(error);
+        reader.readAsDataURL(file);
+      });
+    },
 
-        // Send POST request to server to save file
-        const response = await axios.post("/upload", formData);
+    async uploadFile(base64Image) {
+      try {
+        // Send POST request to server to save the base64 image string
+        const response = await axios.post("http://localhost:3000/api/unos-slike", { image: base64Image });
 
         console.log("File uploaded successfully:", response.data);
       } catch (error) {
         console.error("Error uploading file:", error);
+        alert("Došlo je do pogreške prilikom prijenosa datoteke.");
       }
     },
 

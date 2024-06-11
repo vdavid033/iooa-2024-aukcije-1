@@ -13,7 +13,8 @@
         @mouseleave="hoverOut"
       >
         <q-card @click="navigateToItem(item.sifra_predmeta)" class="item-card">
-          <q-img :src="item.slika" no-native-menu class="item-image" />
+          <!-- Use data URL to display the image -->
+          <q-img :src="'data:image/jpeg;base64,' + item.slika" no-native-menu class="item-image" />
           <q-item-section>
             <q-item class="q-pa-sm text-bold item-title">
               {{ item.naziv_predmeta }}
@@ -27,13 +28,15 @@
             <q-item class="item-info">
               Preostalo vrijeme aukcije: {{ isNegativeDatetime(item.preostalo_vrijeme) ? 'Isteklo' : item.preostalo_vrijeme + ' h' }}
             </q-item>
+            <q-item class="item-info">
+              Trenutna cijena: {{ item.trenutna_cijena }}$
+            </q-item>
           </q-item-section>
         </q-card>
       </div>
     </div>
   </div>
 </template>
-<q-card :expand="false"></q-card>
 
 <script>
 import { ref } from 'vue';
@@ -41,7 +44,7 @@ import axios from 'axios';
 
 const baseUrl = 'http://localhost:3000/api/';
 
-export default {
+export default { 
   computed: {
     sifra_kategorije() {
       return this.$route.query.sifra_kategorije;
@@ -68,7 +71,6 @@ export default {
         this.items = response.data;
       });
   },
-
   methods: {
     isNegativeDatetime(datetimeStr) {
       return datetimeStr.charAt(0) === '-';
@@ -96,7 +98,6 @@ export default {
 /* Razmak i margine */
 .item-container {
   margin: 10px; /* Dodatni razmak između kartica */
-  
 }
 
 /* Visina slike i obrube */
