@@ -46,101 +46,24 @@
       </div>
     </div>
 
-    <!-- predmeti na koje je korisnik postavio bid -->
+
+    <!-- ponude korisnika -->
     <h3>Vaše ponude</h3>
-    <q-card-group class="card-group">
-      <q-card-row class="q-ml-sm flex flex-start q-gutter-sm">
-        <q-card-column>
-          <q-card class="card">
-            <img class="card-img-top" src="" alt="">
-            <q-card-section>
-              <h5 class="card-title">Rolex Daytona</h5>
-              <p class="card-description">Mehanički ručni sat s automatskim navijanjem, proizveden u Švicarskoj.</p>
-              <p>Vaša ponuda: 200 €</p>
-              <p>Preostalo vrijeme: 10:20:58</p>
-              <q-btn color="primary" label="Uredi" @click="editBid(bid)" />
-              <q-btn color="negative" label="Obriši" @click="deleteBid(bid)" />
-            </q-card-section>
-          </q-card>
-        </q-card-column>
-        <q-card-column>
-          <q-card class="card">
-            <img class="card-img-top" src="" alt="">
-            <q-card-section>
-              <h5 class="card-title">Cartier Tank</h5>
-              <p class="card-description">Elegantni mehanički ručni sat s kožnom narukvicom.</p>
-              <p>Vaša ponuda: 200 €</p>
-              <p>Preostalo vrijeme: 10:20:58</p>
-              <q-btn color="primary" label="Uredi" @click="editBid(bid)" />
-              <q-btn color="negative" label="Obriši" @click="deleteBid(bid)" />
-            </q-card-section>
-          </q-card>
-        </q-card-column>
-        <q-card-column>
-          <q-card class="card">
-            <img class="card-img-top" src="" alt="">
-            <q-card-section>
-              <h5 class="card-title">Breitling Navitimer</h5>
-              <p class="card-description">Mehanički ručni sat s automatskim navijanjem, dizajniran za pilote.</p>
-              <p>Vaša ponuda: 200 €</p>
-              <p>Preostalo vrijeme: 10:20:58</p>
-              <q-btn color="primary" label="Uredi" @click="editBid(bid)" />
-              <q-btn color="negative" label="Obriši" @click="deleteBid(bid)" />
-            </q-card-section>
-          </q-card>
-        </q-card-column>
-        <q-card-column>
-          <q-card class="card">
-            <img class="card-img-top" src="" alt="">
-            <q-card-section>
-              <h5 class="card-title">Breitling Navitimer</h5>
-              <p class="card-description">Mehanički ručni sat s automatskim navijanjem, dizajniran za pilote.</p>
-              <p>Vaša ponuda: 200 €</p>
-              <p>Preostalo vrijeme: 10:20:58</p>
-              <q-btn color="primary" label="Uredi" @click="editBid(bid)" />
-              <q-btn color="negative" label="Obriši" @click="deleteBid(bid)" />
-            </q-card-section>
-          </q-card>
-        </q-card-column>
-        <q-card-column>
-          <q-card class="card">
-            <img class="card-img-top" src="" alt="">
-            <q-card-section>
-              <h5 class="card-title">Breitling Navitimer</h5>
-              <p class="card-description">Mehanički ručni sat s automatskim navijanjem, dizajniran za pilote.</p>
-              <p>Vaša ponuda: 200 €</p>
-              <p>Preostalo vrijeme: 10:20:58</p>
-              <q-btn color="primary" label="Uredi" @click="editBid(bid)" />
-              <q-btn color="negative" label="Obriši" @click="deleteBid(bid)" />
-            </q-card-section>
-          </q-card>
-        </q-card-column>
-        <q-card-column>
-          <q-card class="card">
-            <img class="card-img-top" src="" alt="">
-            <q-card-section>
-              <h5 class="card-title">Breitling Navitimer</h5>
-              <p class="card-description">Mehanički ručni sat s automatskim navijanjem, dizajniran za pilote.</p>
-              <p>Vaša ponuda: 200 €</p>
-              <p>Preostalo vrijeme: 10:20:58</p>
-              <q-btn color="primary" label="Uredi" @click="editBid(bid)" />
-              <q-btn color="negative" label="Obriši" @click="deleteBid(bid)" />
-            </q-card-section>
-          </q-card>
-        </q-card-column>
-      </q-card-row>
-    </q-card-group>
-    <!--<q-card v-for="bid in userBids" :key="bid._id">
-      <q-card-section>
-        <h4>{{ bid.item.name }}</h4>
-        <p>Vaša ponuda: {{ bid.bidderBid }} kn</p>
-      </q-card-section>
-      <q-separator />
-      <q-card-actions align="right">
-        <q-btn color="primary" label="Uredi" @click="editBid(bid)" />
-        <q-btn color="negative" label="Obriši" @click="deleteBid(bid)" />
-      </q-card-actions>
-    </q-card>-->
+    <p ref="nema_ponude"></p>
+    <div class="q-pa-sm row flex flex-center">
+  <div v-for="ponuda in vlastitePonude" :key="ponuda.id_ponude" class="q-pa-md" style="width: 400px">
+    <q-card>
+      <q-item-section>
+        <q-img v-if="ponuda.slika" :src="ponuda.slika" no-native-menu />
+        <q-item class="q-pa-sm text-bold text-blue-7">{{ ponuda.naziv_predmeta }} </q-item>
+        <q-item>Opis: {{ ponuda.opis_predmeta }}$</q-item>
+        <q-item>vrijednost ponude: {{ ponuda.vrijednost_ponude }}$</q-item>
+        <q-item>Vrijeme postavljanja ponude: {{ formattedDate(ponuda.vrijeme_ponude) }}</q-item>
+      </q-item-section>
+      <q-separator dark />
+    </q-card>
+  </div>
+</div>
   </div>
 </template>
 
