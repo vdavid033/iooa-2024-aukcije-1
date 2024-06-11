@@ -11,6 +11,9 @@ const upload = multer();
 const jwt = require("jsonwebtoken");
 const config = require("../aukcije-server/auth.config.js");
 const authJwt = require("../aukcije-server/authJwt.js");
+const verifyToken = require('./verifyToken'); // Promijenili smo putanju kako bi se uključila datoteka verifyToken.js koja se nalazi u istoj mapi kao i index.js
+
+
 
 const app = express();
 const port = 3000;
@@ -213,15 +216,62 @@ app.get('/api/get-predmet/:id', (req, res) => {
 
 
 
-  app.post('/unostrenutnaponuda', function (request, response) {
-    const data = request.body;
-    predmet = [[  data.id_ponude, data.vrijednost_ponude, data.vrijeme_ponude, data.id_korisnika, data.sifra_predmeta]]
-    connection.query('INSERT INTO ponuda (id_ponude, vrijednost_ponude,  vrijeme_ponude, id_korisnika, sifra_predmeta) VALUES ?',
-    [predmet], function (error, results, fields) {
-      if (error) throw error;
-      return response.send({ error: false, data: results, message: 'Dodali se trenutnu ponudu.' });
+  //app.post('/unostrenutnaponuda', function (request, response) {
+ //   const data = request.body;
+ //   predmet = [[  data.id_ponude, data.vrijednost_ponude, data.vrijeme_ponude, data.id_korisnika, data.sifra_predmeta]]
+ //   connection.query('INSERT INTO ponuda (id_ponude, vrijednost_ponude,  vrijeme_ponude, id_korisnika, sifra_predmeta) VALUES ?',
+ //   [predmet], function (error, results, fields) {
+ //     if (error) throw error;
+ //     return response.send({ error: false, data: results, message: 'Dodali se trenutnu ponudu.' });
+ //   });
+//  });
+
+
+
+app.post("/api/unostrenutnaponuda", verifyToken, (req, res) => {
+  const { vrijednost_ponude, sifra_predmeta } = req.body;
+  const id_korisnika = req.user.id; // Dobivanje ID-a korisnika iz JWT tokena
+
+  if (!vrijednost_ponude || !sifra_predmeta || !id_korisnika) {
+    return res.status(400).json({ message: "Svi podaci moraju biti poslani." });
+  }
+
+  // Dohvaćanje trenutne cijene proizvoda iz baze podataka
+  connection.query('SELECT trenutna_cijena FROM predmet WHERE sifra_predmeta = ?', [sifra_predmeta], (error, results) => {
+    if (error) {
+      console.error('Greška prilikom dohvaćanja trenutne cijene proizvoda:', error);
+      return res.status(500).json({ error: true, message: 'Došlo je do greške prilikom dohvaćanja trenutne cijene proizvoda.' });
+    }
+
+    const trenutna_cijena = results[0].trenutna_cijena;
+
+    if (vrijednost_ponude <= trenutna_cijena) {
+      return res.status(400).json({ message: "Ponuđena cijena mora biti veća od trenutne cijene." });
+    }
+
+    const vrijeme_ponude = new Date().toISOString().slice(0, 19).replace('T', ' '); // Generiranje trenutnog vremena
+
+    const ponuda = [[vrijednost_ponude, vrijeme_ponude, id_korisnika, sifra_predmeta]];
+
+    connection.query('INSERT INTO ponuda (vrijednost_ponude, vrijeme_ponude, id_korisnika, sifra_predmeta) VALUES ?', [ponuda], (error, results) => {
+      if (error) {
+        console.error('Greška prilikom dodavanja nove ponude:', error);
+        return res.status(500).json({ error: true, message: 'Došlo je do greške prilikom dodavanja nove ponude.' });
+      }
+
+      // Ažuriranje trenutne cijene predmeta
+      connection.query('UPDATE predmet SET trenutna_cijena = ? WHERE sifra_predmeta = ?', [vrijednost_ponude, sifra_predmeta], (error, results) => {
+        if (error) {
+          console.error('Greška prilikom ažuriranja trenutne cijene predmeta:', error);
+          return res.status(500).json({ error: true, message: 'Došlo je do greške prilikom ažuriranja trenutne cijene predmeta.' });
+        }
+
+        res.json({ error: false, message: 'Dodali ste trenutnu ponudu.' });
+      });
     });
   });
+});
+
 
   //Unos slike
 app.post("/api/unos-slike", function (req, res) {
