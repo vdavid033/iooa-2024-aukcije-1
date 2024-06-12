@@ -49,7 +49,7 @@
         <q-input
           ref="pocetnaCijenaRef"
           filled
-          type="number"
+          type="double"
           label="Početna cijena proizvoda"
           v-model="pocetna_cijena"
           lazy-rules
@@ -78,22 +78,20 @@
         />
       </div>
       <div style="width: 500px">
-        <q-select
-          ref="selectedCategory3Ref"
-          filled
-          type="integer"
-          lazy-rules
-          emit-value
-          v-model="selectedCategory3"
-          label="Korisnik"
-          :options="korisnik"
-          option-label="name"
-          option-value="value"
-          :rules="[
-            (val) => (val !== null && val !== '') || 'Odaberite korisnika',
-          ]"
-        />
-      </div>
+    <q-input
+      ref="selectedCategory3Ref"
+      filled
+      type="integer"
+      lazy-rules
+      emit-value
+      v-model= korisnik_trenutno.ime_korisnika
+      label="Korisnik"
+      :rules="[
+        (val) => (val !== null && val !== '') || 'Odaberite korisnika',
+      ]"
+      readonly
+    />
+  </div>
     </div>
     <div class="text-h6 text-bold text-left text-blue-7 q-ml-sm">
       Početak aukcije
@@ -101,9 +99,9 @@
     <div class="q-ml-sm flex flex-start q-gutter-sm">
       <div style="width: 300px">
         <q-input 
-          filled 
-          v-model="vrijemePocetka" 
-          label="Datum i vrijeme početka aukcije"
+        filled 
+        v-model="vrijemePocetka" 
+        label="Datum i vrijeme početka aukcije"
         >
           <template v-slot:prepend>
             <q-icon name="event" class="cursor-pointer">
@@ -113,8 +111,8 @@
                 transition-hide="scale"
               >
                 <q-date 
-                  v-model="vrijemePocetka" 
-                  mask="YYYY-MM-DD HH:mm" ref="datePicker"
+                v-model="vrijemePocetka" 
+                mask="YYYY-MM-DD HH:mm" ref="datePicker"
                 >
                   <div class="row items-center justify-right">
                     <q-btn v-close-popup label="Close" color="primary" flat />
@@ -132,65 +130,64 @@
                 transition-hide="scale"
               >
                 <q-time 
-                  v-model="vrijemePocetka" 
-                  mask="YYYY-MM-DD HH:mm" 
-                  format24h
-                >
+                v-model="vrijemePocetka" 
+                mask="YYYY-MM-DD HH:mm" 
+                format24h>
                   <div class="row items-center justify-right">
-                    <q-btn v-close-popup label="Close" color="primary" flat />
+                    <q-btn 
+                    v-close-popup label="Close" 
+                    color="primary" flat />
                   </div>
+                  
                 </q-time>
               </q-popup-proxy>
             </q-icon>
           </template>
         </q-input>
-        <div v-if="dateError" class="text-red">{{ dateErrorMessage }}</div>
+      <div v-if="dateError" class="text-red">{{ dateErrorMessage }}</div>
       </div>
     </div>
     <div class="text-h6 text-bold text-left text-blue-7 q-ml-sm">
       Završetak aukcije
     </div>
-    <div class="q-ml-sm flex flex-start q-gutter-sm">
-      <div style="width: 300px">
-        <q-input 
-          filled 
-          v-model="vrijemeZavrsetka2" 
-          label="Datum i vrijeme završetka aukcije"
-        >
-          <template v-slot:prepend>
-            <q-icon name="event" class="cursor-pointer">
-              <q-popup-proxy
-                cover
-                transition-show="scale"
-                transition-hide="scale"
-              >
-                <q-date v-model="vrijemeZavrsetka2" mask="YYYY-MM-DD HH:mm">
-                  <div class="row items-center justify-right">
-                    <q-btn v-close-popup label="Close" color="primary" flat />
-                  </div>
-                </q-date>
-              </q-popup-proxy>
-            </q-icon>
-          </template>
+  <div class="q-ml-sm flex flex-start q-gutter-sm">
+    <div style="width: 300px">
+      <q-input filled v-model="vrijemeZavrsetka2" label="Datum i vrijeme završetka aukcije">
+        <template v-slot:prepend>
+          <q-icon name="event" class="cursor-pointer">
+            <q-popup-proxy
+              cover
+              transition-show="scale"
+              transition-hide="scale"
+            >
+              <q-date v-model="vrijemeZavrsetka2" mask="YYYY-MM-DD HH:mm">
+                <div class="row items-center justify-right">
+                  <q-btn v-close-popup label="Close" color="primary" flat />
+                </div>
+              </q-date>
+            </q-popup-proxy>
+          </q-icon>
+        </template>
 
-          <template v-slot:append>
-            <q-icon name="access_time" class="cursor-pointer">
-              <q-popup-proxy
-                cover
-                transition-show="scale"
-                transition-hide="scale"
-              >
-                <q-time v-model="vrijemeZavrsetka2" mask="YYYY-MM-DD HH:mm" format24h>
-                  <div class="row items-center justify-right">
-                    <q-btn v-close-popup label="Close" color="primary" flat />
-                  </div>
-                </q-time>
-              </q-popup-proxy>
-            </q-icon>
-          </template>
-        </q-input>
-      </div>
+        <template v-slot:append>
+          <q-icon name="access_time" class="cursor-pointer">
+            <q-popup-proxy
+              cover
+              transition-show="scale"
+              transition-hide="scale"
+            >
+              <q-time v-model="vrijemeZavrsetka2" mask="YYYY-MM-DD HH:mm" format24h>
+                <div class="row items-center justify-right">
+                  <q-btn v-close-popup label="Close" color="primary" flat />
+                </div>
+              </q-time>
+            </q-popup-proxy>
+          </q-icon>
+        </template>
+        
+      </q-input>
     </div>
+  </div>
     <div style="width: 500px">
       <q-input
         ref="opisPredmetaRef"
@@ -219,7 +216,7 @@
         @click="submitForm"
         color="green"
         class="q-ml-sm"
-      />
+        :rules="[handleSubmit]"/> 
       <q-btn label="Otkaži" type="submit" color="red" class="q-ml-sm" />
     </div>
 
@@ -263,6 +260,12 @@ export default {
       showDialog: false,
       dateError: false,
       dateErrorMessage: '',
+      korisnik_trenutno: {
+        ime_korisnika: "",
+        prezime_korisnika: "",
+        email_korisnika: "",
+        adresa_korisnika: ""
+      },
       
       categories: [
         { name: "Namjestaj", value: "1" },
@@ -288,6 +291,26 @@ export default {
         price: value => /^\d+(\.\d{1,2})?$/.test(value) || 'Unesite početnu cijenu (x.xx format)'
       },
     };
+  },
+
+  async mounted() {
+    try {
+      // Get the JWT token from local storage
+      const token = localStorage.getItem("token");
+
+      // Parse the token to get user ID
+      const userId = this.getUserIdFromToken(token);
+
+      // Fetch user data using user ID
+      const userData = await this.fetchUserData(userId);
+      const headers = { Authorization: `Bearer ${token}` };
+      // Update the component's data with the fetched user data
+      this.korisnik_trenutno = userData;
+
+      this.dohvatPredmeta(userId, headers);
+    } catch (error) {
+      console.error("Greška kod dohvaćanja vlastitih predmeta:", error);
+    }
   },
 
   methods: {
@@ -324,6 +347,27 @@ export default {
         reader.readAsDataURL(file);
       });
     },
+    getUserIdFromToken(token) {
+      // Parse JWT token and extract user ID
+      var base64Url = token.split('.')[1];
+      var base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+      var jsonPayload = decodeURIComponent(atob(base64).split('').map(function (c) {
+        return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
+      }).join(''));
+      return JSON.parse(jsonPayload).id;
+    },
+    async fetchUserData(userId) {
+      try {
+        // Fetch user data from the server using user ID
+        const response = await axios.get(`http://localhost:3000/api/korisnikinfo1/${userId}`);
+        // Return user data
+        return response.data[0];
+      } catch (error) {
+        console.error("Error fetching user data:", error);
+        // If an error occurs, you might want to handle it accordingly
+        throw error;
+      }
+    },
 
     closeAndReload() {
       this.showDialog = false;
@@ -351,19 +395,43 @@ export default {
     },
 
     validateForm() {
-      // Validate all input fields and the image upload
-      const isFieldsFilled = this.naziv_predmeta && this.selectedCategory1 && this.pocetna_cijena &&
-                             this.selectedCategory2 && this.selectedCategory3 && this.opis_predmeta &&
-                             this.vrijemePocetka && this.vrijemeZavrsetka2;
-      const isImageUploaded = this.compressedImage;
+  // Validate all input fields and the image upload
+  const isFieldsFilled = this.naziv_predmeta && this.selectedCategory1 && this.pocetna_cijena &&
+                         this.selectedCategory2 && this.korisnik_trenutno.ime_korisnika && this.opis_predmeta &&
+                         this.vrijemePocetka && this.vrijemeZavrsetka2;
 
-      if (!isFieldsFilled || !isImageUploaded) {
-        const missingFieldsMsg = "Molim ispuniti sva polja i dodati sliku.";
-        this.showMessageBox(missingFieldsMsg);
-        return false;
-      }
-      return true;
-    },
+  const isImageUploaded = this.compressedImage;
+
+  if (!isFieldsFilled || !isImageUploaded) {
+    let missingFieldsMsg = "Molim ispuniti sva polja i dodati sliku.";
+    this.$q.notify({
+      message: missingFieldsMsg,
+      color: "red",
+      position: "top",
+    });
+    this.highlightEmptyFields();
+    return false;
+  }
+
+  return true;
+},
+
+highlightEmptyFields() {
+  if (!this.naziv_predmeta) this.$refs.nazivPredmetaRef.validate();
+  if (!this.selectedCategory1) this.$refs.selectedCategory1Ref.validate();
+  if (!this.pocetna_cijena) this.$refs.pocetnaCijenaRef.validate();
+  if (!this.selectedCategory2) this.$refs.selectedCategory2Ref.validate();
+  if (!this.korisnik_trenutno.ime_korisnika) this.$refs.selectedCategory3Ref.validate();
+  if (!this.opis_predmeta) this.$refs.opisPredmetaRef.validate();
+  if (!this.vrijemePocetka) {
+    this.dateError = true;
+    this.dateErrorMessage = 'Unesite datum i vrijeme početka aukcije';
+  }
+  if (!this.vrijemeZavrsetka2) {
+    this.dateError = true;
+    this.dateErrorMessage = 'Unesite datum i vrijeme završetka aukcije';
+  }
+},
 
     showMessageBox(message) {
       this.$q.dialog({
