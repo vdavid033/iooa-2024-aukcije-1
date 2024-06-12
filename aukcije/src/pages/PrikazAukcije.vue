@@ -30,6 +30,11 @@
         </q-card>
       </q-dialog>
     </div>
+
+    <!-- Prikaz poruka -->
+    <div v-if="message" class="q-pa-md">
+      <q-banner dense>{{ message }}</q-banner>
+    </div>
   </div>
 </template>
 
@@ -56,33 +61,48 @@ export default {
         { label: "300 €" },
         { label: "400 €" },
         { label: "500 €" },
-        { label: "1000 €" },
+        { label: "1500 €" },
       ],
-      potvrdjenaCijena: null,
+      message: '', // Držimo poruku
     };
   },
   mounted() {
     axios
-      .get(baseUrl + "get-predmet/" + this.sifra_predmeta, {})
+      .get(baseUrl + "unostrenutnaponuda/get-predmet/" + this.sifra_predmeta, {})
       .then((response) => {
         this.item = response.data[0];
       });
 
     axios
-      .get(baseUrl + "get-predmet-trenutna-cijena/" + this.sifra_predmeta, {})
+      .get(baseUrl + "unostrenutnaponuda/get-predmet-trenutna-cijena/" + this.sifra_predmeta, {})
       .then((response) => {
         this.item = response.data[0];
       });
   },
 
   methods: {
-    formattedDate(dateString) {
-      return new Date(dateString).toLocaleString("hr-HR").replace(",", "");
-    },
-    potvrdiPonudu() {
+    async potvrdiPonudu() {
       if (this.odabranaCijena) {
-        this.potvrdjenaCijena = this.odabranaCijena;
-        this.showDialog = false;
+        const token = localStorage.getItem('token');
+        const headers = { Authorization: `Bearer ${token}` };
+
+        try {
+          const response = await axios.post(
+            `${baseUrl}unostrenutnaponuda`,
+            {
+              vrijednost_ponude: parseFloat(this.odabranaCijena.label.replace(' €', '')),
+              vrijeme_ponude: new Date().toISOString(),
+              sifra_predmeta: this.sifra_predmeta,
+            },
+            { headers }
+          );
+
+          this.message = response.data.message;
+          this.showDialog = false;
+          this.item.trenutna_cijena = this.odabranaCijena.label; // Ažuriranje prikaza trenutne cijene
+        } catch (error) {
+          this.message = 'Greška pri dodavanju ponude: ' + (error.response ? error.response.data.message : error.message);
+        }
       }
     },
   },
@@ -97,3 +117,11 @@ export default {
   },
 };
 </script>
+
+<style>
+/* Dodaj stilove ovdje ako je potrebno */
+.q-banner {
+  background-color: #ffc107;
+  color: #000;
+}
+</style>

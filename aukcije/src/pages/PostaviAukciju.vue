@@ -78,22 +78,20 @@
         />
       </div>
       <div style="width: 500px">
-        <q-select
-          ref="selectedCategory3Ref"
-          filled
-          type="integer"
-          lazy-rules
-          emit-value
-          v-model="selectedCategory3"
-          label="Korisnik"
-          :options="korisnik"
-          option-label="name"
-          option-value="value"
-          :rules="[
-            (val) => (val !== null && val !== '') || 'Odaberite korisnika',
-          ]"
-        />
-      </div>
+    <q-input
+      ref="selectedCategory3Ref"
+      filled
+      type="integer"
+      lazy-rules
+      emit-value
+      v-model= korisnik_trenutno.ime_korisnika
+      label="Korisnik"
+      :rules="[
+        (val) => (val !== null && val !== '') || 'Odaberite korisnika',
+      ]"
+      readonly
+    />
+  </div>
     </div>
     <div class="text-h6 text-bold text-left text-blue-7 q-ml-sm">
       Početak aukcije
@@ -263,6 +261,12 @@ export default {
       showDialog: false,
       dateError: false,
       dateErrorMessage: '',
+      korisnik_trenutno: {
+        ime_korisnika: "",
+        prezime_korisnika: "",
+        email_korisnika: "",
+        adresa_korisnika: ""
+      },
       //vrijemePocetka: null,
       //vrijemeZavrsetka: null,
       
@@ -278,18 +282,33 @@ export default {
         { name: "Za osobe pogođene požarom", value: "Požar" },
         { name: "Ostalo", value: "ostalo" },
       ],
-      korisnik: [
-        { name: "Masimo", value: "1" },
-        { name: "Emil", value: "2" },
-        { name: "Dorijan", value: "3" },
-        { name: "Dario", value: "4" },
-      ],
-
+   
+    
       rules: {
       required: value => !!value || 'Unesite početnu cijenu',
       price: value => /^\d+(\.\d{1,2})?$/.test(value) || 'Unesite početnu cijenu (x.xx format)'
     },
     };
+  },
+
+  async mounted() {
+    try {
+      // Get the JWT token from local storage
+      const token = localStorage.getItem("token");
+
+      // Parse the token to get user ID
+      const userId = this.getUserIdFromToken(token);
+
+      // Fetch user data using user ID
+      const userData = await this.fetchUserData(userId);
+      const headers = { Authorization: `Bearer ${token}` };
+      // Update the component's data with the fetched user data
+      this.korisnik_trenutno = userData;
+
+      this.dohvatPredmeta(userId, headers);
+    } catch (error) {
+      console.error("Greška kod dohvaćanja vlastitih predmeta:", error);
+    }
   },
 
   methods: {
@@ -327,6 +346,27 @@ export default {
         console.log("File uploaded successfully:", response.data);
       } catch (error) {
         console.error("Error uploading file:", error);
+      }
+    },
+    getUserIdFromToken(token) {
+      // Parse JWT token and extract user ID
+      var base64Url = token.split('.')[1];
+      var base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+      var jsonPayload = decodeURIComponent(atob(base64).split('').map(function (c) {
+        return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
+      }).join(''));
+      return JSON.parse(jsonPayload).id;
+    },
+    async fetchUserData(userId) {
+      try {
+        // Fetch user data from the server using user ID
+        const response = await axios.get(`http://localhost:3000/api/korisnikinfo1/${userId}`);
+        // Return user data
+        return response.data[0];
+      } catch (error) {
+        console.error("Error fetching user data:", error);
+        // If an error occurs, you might want to handle it accordingly
+        throw error;
       }
     },
 
