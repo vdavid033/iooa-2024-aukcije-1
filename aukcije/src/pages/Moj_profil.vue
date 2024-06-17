@@ -22,29 +22,29 @@
     </div>
     <q-btn color="primary" label="Izmjena korisničkih podataka" @click="$router.push('/UpdateProfil')" />
 
-    <!-- predmeti na aukciji koje je korisnik postavio -->
-    <h3>Vaši predmeti na aukciji</h3>
-    <p ref="nema_predmete"></p>
-    <div class="q-pa-sm row flex flex-center">
-      <div v-for="predmet in vlastitiPredmeti" :key="predmet.id_predmeta" class="q-pa-md" style="width: 400px">
-        <q-card>
-          <q-item-section @click="pregledPredmeta(predmet.id_predmeta)">
-            <q-img v-if="predmet.slika" :src="predmet.slika" no-native-menu />
-            <q-item class="q-pa-sm text-bold text-blue-7">{{ predmet.naziv_predmeta }} </q-item>
-            <q-item>Početna cijena: {{ predmet.pocetna_cijena }}$</q-item>
-            <q-item>Vrijeme pocetka: {{ formattedDate(predmet.vrijeme_pocetka) }}</q-item>
-            <q-item>Vrijeme zavrsetka: {{ formattedDate(predmet.vrijeme_zavrsetka) }}</q-item>
-            <q-item>Preostalo vrijeme aukcije: {{ predmet.preostalo_vrijeme }} h </q-item>
-            <q-item>Trenutna cijena: {{ predmet.trenutna_cijena }}$</q-item>
-          </q-item-section>
-          <q-separator dark />
-          <q-card-actions>
-            <q-btn flat color="primary" @click="izmijeniPredmet(predmet.id_predmeta)">Izmijeni</q-btn>
-            <q-btn flat color="negative" @click="obrisiPredmet(predmet.id_predmeta)">Obriši</q-btn>
-          </q-card-actions>
-        </q-card>
-      </div>
-    </div>
+ <!-- Moje aukcije -->
+ <h3>Vaši predmeti na aukciji</h3>
+<p ref="nema_predmete"></p>
+<div class="q-pa-sm row flex flex-center">
+  <div v-for="predmet in vlastitiPredmeti" :key="predmet.id_predmeta" class="q-pa-md" style="width: 400px">
+    <q-card>
+      <q-item-section @click="pregledPredmeta(predmet.id_predmeta)">
+        <q-img v-if="predmet.slika" :src="predmet.slika" no-native-menu />
+        <q-item class="q-pa-sm text-bold text-blue-7">{{ predmet.naziv_predmeta }}</q-item>
+        <q-item>Početna cijena: {{ predmet.pocetna_cijena }}$</q-item>
+        <q-item>Vrijeme pocetka: {{ formattedDate(predmet.vrijeme_pocetka) }}</q-item>
+        <q-item>Vrijeme zavrsetka: {{ formattedDate(predmet.vrijeme_zavrsetka) }}</q-item>
+        <q-item>Preostalo vrijeme aukcije: {{ predmet.preostalo_vrijeme }} h</q-item>
+        <q-item>Trenutna cijena: {{ predmet.trenutna_cijena }}$</q-item>
+      </q-item-section>
+      <q-separator dark />
+      <q-card-actions>
+        <q-btn flat color="primary" @click="izmijeniPredmet(predmet.id_predmeta)">Izmijeni</q-btn>
+        <q-btn flat color="negative" @click="obrisiPredmet(predmet.id_predmeta)">Obriši</q-btn>
+      </q-card-actions>
+    </q-card>
+  </div>
+</div>
 
     <!-- predmeti na koje je korisnik postavio bid -->
     <h3>Vaše ponude</h3>
@@ -211,37 +211,43 @@ export default {
   },
 
   async mounted() {
-    try {
-      // Get the JWT token from local storage
-      const token = localStorage.getItem("token");
+  try {
+    const token = localStorage.getItem("token");
+    const userId = this.getUserIdFromToken(token);
+    const userData = await this.fetchUserData(userId);
+    this.korisnik_trenutno = userData;
+    const headers = { Authorization: `Bearer ${token}` };
+    await this.dohvatPredmeta(userId, headers);
+  } catch (error) {
+    console.error("Greška kod dohvaćanja vlastitih predmeta:", error);
+  }
+},
 
-      // Parse the token to get user ID
-      const userId = this.getUserIdFromToken(token);
-
-      // Fetch user data using user ID
-      const userData = await this.fetchUserData(userId);
-      const headers = { Authorization: `Bearer ${token}` };
-      // Update the component's data with the fetched user data
-      this.korisnik_trenutno = userData;
-
-      this.dohvatPredmeta(userId, headers);
-    } catch (error) {
-      console.error("Greška kod dohvaćanja vlastitih predmeta:", error);
-    }
-  },
 
   methods: {
-
     async dohvatPredmeta(userId, headers) {
-      await axios
-        .get("http://localhost:3000/api/vlastiti-predmeti/" + userId, { headers })
-        .then((response) => {
-          if (response.data.length === 0) {
-            this.$refs.nema_predmete.textContent = "Nemate niti jedan predmet koji je ili je bio na aukciji!";
-          } else {
-            this.vlastitiPredmeti = response.data;
-          }
-        })},
+  try {
+    const response = await axios.get(`http://localhost:3000/api/user-auctions`, { headers });
+
+    if (response.data.length === 0) {
+      this.$refs.nema_predmete.textContent = "Nemate niti jedan predmet koji je ili je bio na aukciji!";
+    } else {
+      this.vlastitiPredmeti = response.data;
+    }
+  } catch (error) {
+    console.error("Error fetching user auctions:", error);
+  }
+},
+
+  getUserIdFromToken(token) {
+    var base64Url = token.split('.')[1];
+    var base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+    var jsonPayload = decodeURIComponent(atob(base64).split('').map(function (c) {
+      return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
+    }).join(''));
+    return JSON.parse(jsonPayload).id;
+  },
+
 
     formattedDate(dateString) {
       return new Date(dateString).toLocaleString("hr-HR").replace(",", "");
@@ -278,30 +284,19 @@ export default {
     deleteBid(bid) {
       // Funkcija za brisanje bid-a na aukciji
     },
-    getUserIdFromToken(token) {
-      // Parse JWT token and extract user ID
-      var base64Url = token.split('.')[1];
-      var base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
-      var jsonPayload = decodeURIComponent(atob(base64).split('').map(function (c) {
-        return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
-      }).join(''));
-      return JSON.parse(jsonPayload).id;
-    },
 
     async fetchUserData(userId) {
       try {
-        // Fetch user data from the server using user ID
         const response = await axios.get(`http://localhost:3000/api/korisnikinfo1/${userId}`);
-        // Return user data
         return response.data[0];
       } catch (error) {
         console.error("Error fetching user data:", error);
-        // If an error occurs, you might want to handle it accordingly
         throw error;
       }
     }
   }
 }
+
 </script>
 
 <style>

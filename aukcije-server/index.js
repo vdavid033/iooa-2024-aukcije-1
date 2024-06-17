@@ -295,6 +295,22 @@ app.get('/api/get-predmet/:id', (req, res) => {
   });
 });
 
+app.get('/api/user-auctions', verifyToken, (req, res) => {
+  const userId = req.user.id; 
+  connection.query(
+    'SELECT * FROM predmet WHERE id_korisnika = ?',
+    [userId],
+    (error, results) => {
+      if (error) {
+        console.error('Error fetching user auctions:', error);
+        return res.status(500).json({ message: 'An error occurred while fetching user auctions.' });
+      }
+
+      res.status(200).json(results);
+    }
+  );
+});
+
   //Unos slike
 app.post("/api/unos-slike", function (req, res) {
   const data = req.body;
