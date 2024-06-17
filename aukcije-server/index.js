@@ -12,6 +12,7 @@ const jwt = require("jsonwebtoken");
 const config = require("../aukcije-server/auth.config.js");
 const authJwt = require("../aukcije-server/authJwt.js");
 const verifyToken = require('./verifyToken');
+const { sign } = require("crypto");
 
 const app = express();
 const port = 3000;
@@ -181,7 +182,7 @@ app.get('/api/all-korisnik', (req, res) => {
     })
 })
 
-
+//unos staro
 app.post('/unosPredmeta', function (request, response) {
   const data = request.body;
     predmet = [[data.sifra_predmeta, data.naziv_predmeta,  data.opis_predmeta, data.slika, data.vrijeme_pocetka, data.vrijeme_zavrsetka, data.pocetna_cijena, data.svrha_donacije, data.id_korisnika, data.sifra_kategorije]]
@@ -192,6 +193,31 @@ app.post('/unosPredmeta', function (request, response) {
       return response.send({ error: false, data: results, message: 'Predmet je dodan.' });
     });
 });
+
+// unos novo
+// Kod za unos predmeta
+//app.post('/unosPredmeta', verifyToken, (request, response) => {
+ // const data = request.body;
+ // const id_korisnika = request.user.id; // Dobivanje ID-a korisnika iz JWT tokena
+
+  // Provjera da li su svi potrebni podaci poslani
+ // if (!data.sifra_predmeta || !data.naziv_predmeta || !data.opis_predmeta || !data.slika || !data.vrijeme_pocetka || !data.vrijeme_zavrsetka || !data.pocetna_cijena || !data.svrha_donacije || !data.sifra_kategorije) {
+//    return response.status(400).json({ message: "Svi podaci moraju biti poslani." });
+//  }
+
+ // const predmet = [[data.sifra_predmeta, data.naziv_predmeta, data.opis_predmeta, data.slika, data.vrijeme_pocetka, data.vrijeme_zavrsetka, data.pocetna_cijena, data.svrha_donacije, id_korisnika, data.sifra_kategorije]];
+
+ // connection.query('INSERT INTO predmet (sifra_predmeta, naziv_predmeta, opis_predmeta, slika, vrijeme_pocetka, vrijeme_zavrsetka, pocetna_cijena, svrha_donacije, id_korisnika, sifra_kategorije) VALUES ?',
+ //   [predmet], (error, results) => {
+   //   if (error) {
+ //       console.error('Greška prilikom unosa predmeta:', error);
+  //      return response.status(500).json({ error: true, message: 'Došlo je do greške prilikom unosa predmeta.' });
+ //     }
+ //     console.log('Data:', data);
+ //     return response.status(201).json({ error: false, data: results, message: 'Predmet je dodan.' });
+ //   });
+//});
+
 
 //http://localhost:3000/api/get-predmet
 app.get('/api/get-predmet/:id', (req, res) => {
@@ -269,7 +295,6 @@ app.get('/api/get-predmet/:id', (req, res) => {
   });
 });
 
-
   //Unos slike
 app.post("/api/unos-slike", function (req, res) {
   const data = req.body;
@@ -335,6 +360,7 @@ app.get('/api/get-predmet-trenutna-cijena/:id', (req, res) => {
     }
   );
 });
+
 
 
 
