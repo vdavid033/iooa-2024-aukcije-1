@@ -13,6 +13,7 @@ const config = require("../aukcije-server/auth.config.js");
 const authJwt = require("../aukcije-server/authJwt.js");
 const verifyToken = require('./verifyToken');
 const { sign } = require("crypto");
+const { sign } = require("crypto");
 
 const app = express();
 const port = 3000;
