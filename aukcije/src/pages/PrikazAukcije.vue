@@ -26,6 +26,7 @@
 
           <q-card-actions align="right" class="bg-white text-teal">
             <q-btn flat label="Potvrdi ponudu" @click="potvrdiPonudu" />
+            <q-btn flat label="Odustani" @click="showDialog = false" />
           </q-card-actions>
         </q-card>
       </q-dialog>
