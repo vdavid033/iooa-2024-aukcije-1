@@ -31,6 +31,10 @@
       </q-dialog>
     </div>
 
+    <div class="q-pa-md flex flex-center">
+      <q-btn label="Povratak" color="primary" @click="goBack" />
+    </div>
+
     <!-- Prikaz poruka -->
     <div v-if="message" class="q-pa-md">
       <q-banner dense>{{ message }}</q-banner>
@@ -105,6 +109,9 @@ export default {
         }
       }
     },
+    goBack() {
+      this.$router.go(-1);
+    }
   },
 
   setup() {
