@@ -78,7 +78,7 @@
           <div style="width: 39.5%">
             <q-field filled label="Trenutna cijena " stack-label>
               <div class="self-center full-width no-outline" tabindex="0">
-                {{ item.trenutna_cijena + "" }}
+                {{ item.trenutna_cijena ? item.trenutna_cijena + "" : 'N/A' }}
               </div>
             </q-field>
           </div>
@@ -105,8 +105,8 @@
     </q-dialog>
   </div>
 </template>
+
 <script>
-import { jwtDecode } from "jwt-decode";
 import { ref } from "vue";
 import axios from "axios";
 
@@ -124,7 +124,7 @@ export default {
   },
   data() {
     return {
-      item: [],
+      item: {}, // inicijalno prazan objekt
       showDialog: false,
       odabranaCijena: "",
       prices: [
@@ -152,18 +152,35 @@ export default {
     };
   },
   mounted() {
-    axios.get(baseUrl + "get-predmet/" + this.sifra_predmeta, {}).then((response) => {
-      this.item = response.data[0];
-   
-   
-    });
-
-    axios .get(baseUrl + "unostrenutnaponuda/get-predmet-trenutna-cijena/" + this.sifra_predmeta, {})
+    axios.get(baseUrl + "get-predmet/" + this.sifra_predmeta, {})
       .then((response) => {
-        this.item = response.data[0];
+        console.log('Response from get-predmet:', response.data); 
+        if (response.data.length > 0) {
+          this.item = response.data[0];
+          console.log('Updated item:', this.item);
+        } else {
+          console.error('No data found for get-predmet');
+        }
+      })
+      .catch((error) => {
+        console.error('Error in get-predmet:', error);
+      });
+
+    axios.get(baseUrl + "unostrenutnaponuda/get-predmet-trenutna-cijena/" + this.sifra_predmeta, {})
+      .then((response) => {
+        console.log('Response from get-predmet-trenutna-cijena:', response.data); 
+        if (response.data.length > 0) {
+          // Ažuriranje item objekta samo s trenutna_cijena
+          this.item.trenutna_cijena = response.data[0].trenutna_cijena;
+          console.log('Updated item with trenutna_cijena:', this.item);
+        } else {
+          console.error('No data found for get-predmet-trenutna-cijena');
+        }
+      })
+      .catch((error) => {
+        console.error('Error in get-predmet-trenutna-cijena:', error);
       });
   },
-  
 
   methods: {
     formattedDate(dateString) {
