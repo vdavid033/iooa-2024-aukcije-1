@@ -365,6 +365,16 @@ app.get("/api/all-predmet-with-current-price", (req, res) => {
     }
   );
 });
+app.get("/api/all-predmet-with-current-price-isteklo", (req, res) => {
+  connection.query(
+    "SELECT p.sifra_predmeta, p.naziv_predmeta, p.slika, p.pocetna_cijena, p.vrijeme_zavrsetka, 'ISTEKLO' AS preostalo_vrijeme, COALESCE(MAX(po.vrijednost_ponude), p.pocetna_cijena) AS trenutna_cijena FROM predmet p LEFT JOIN ponuda po ON p.sifra_predmeta = po.sifra_predmeta WHERE p.vrijeme_zavrsetka < NOW() GROUP BY p.sifra_predmeta ORDER BY preostalo_vrijeme DESC",
+    (error, results) => {
+      if (error) throw error;
+
+      res.send(results);
+    }
+  );
+});
 app.get('/api/get-predmet-trenutna-cijena/:id', (req, res) => {
   const { id } = req.params;
   connection.query(

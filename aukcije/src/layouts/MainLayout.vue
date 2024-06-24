@@ -58,6 +58,12 @@
           
             </router-link>
           </div>
+          <div class="q-pa-sm col">
+            <router-link to="/istekle" class="link-style" @click="toggleLeftDrawerClose">
+              <q-btn class="flex flex-center" style="width: 280px" color="primary"> Istekle aukcije</q-btn>
+          
+            </router-link>
+          </div>
           <template v-if="isAuthenticated()">
           <div class="q-pa-sm col">
   <router-link to="/postavi" class="link-style" @click="toggleLeftDrawerClose">

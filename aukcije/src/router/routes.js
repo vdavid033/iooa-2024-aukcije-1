@@ -48,6 +48,10 @@ const routes = [
       {
         path: "logout",
         component: () => import("pages/logout.vue"),
+      },
+      {
+        path: "istekle",
+        component: () => import("pages/istekle.vue"),
       }
 
     ],
