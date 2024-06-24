@@ -157,16 +157,40 @@ app.get("/api/get-predmet/:id", (req, res) => {
   );
 });
 app.get("/api/get-kategorija-predmet/:id", (req, res) => {
-    const { id } = req.params;
+  const { id } = req.params;
 
-    connection.query(
-        "SELECT sifra_predmeta, naziv_predmeta, slika, pocetna_cijena, vrijeme_zavrsetka, TIME_FORMAT( SEC_TO_TIME(TIMESTAMPDIFF(SECOND, NOW(), vrijeme_zavrsetka)), '%H:%i:%s' ) AS preostalo_vrijeme, svrha_donacije, opis_predmeta FROM predmet WHERE sifra_kategorije = ?",
-        [id],
-        (error, results) => {
-            if (error) throw error;
-            res.send(results);
-        }
-    );
+  connection.query(
+    `
+    SELECT
+    p.sifra_predmeta,
+    p.opis_predmeta,
+    p.naziv_predmeta,
+    p.pocetna_cijena,
+    p.vrijeme_pocetka,
+    p.vrijeme_zavrsetka,
+    CONCAT(
+        FLOOR(TIMESTAMPDIFF(SECOND, NOW(), p.vrijeme_zavrsetka) / (24 * 3600)),
+        ' dana, ',
+        TIME_FORMAT(
+            SEC_TO_TIME(TIMESTAMPDIFF(SECOND, NOW(), p.vrijeme_zavrsetka) % (24 * 3600)),
+            '%H:%i:%s'
+        )
+    ) AS preostalo_vrijeme,
+    (SELECT slika FROM predmet WHERE sifra_predmeta = p.sifra_predmeta LIMIT 1) AS slika,
+    COALESCE(MAX(po.vrijednost_ponude), p.pocetna_cijena) AS trenutna_cijena
+FROM predmet p
+LEFT JOIN ponuda po ON p.sifra_predmeta = po.sifra_predmeta
+WHERE p.sifra_kategorije = ? AND p.vrijeme_zavrsetka > NOW()
+GROUP BY p.sifra_predmeta
+ORDER BY preostalo_vrijeme DESC;
+
+  `,
+    [id],
+    (error, results) => {
+      if (error) throw error;
+      res.send(results);
+    }
+  );
 });
 app.get("/api/all-kategorija", (req, res) => {
   connection.query("SELECT * FROM kategorija", (error, results) => {
@@ -311,6 +335,23 @@ app.get('/api/user-auctions', verifyToken, (req, res) => {
     }
   );
 });
+app.delete("/api/brisanjePredmeta/:id", authJwt.verifyTokenUser, (req, res) => {
+  console.log("Primljen zahtev za brisanje predmeta sa ID:", req.params.id);
+  
+  connection.query("DELETE FROM predmet WHERE sifra_predmeta = ?", [req.params.id], (error, results) => {
+    if (error) {
+      console.error("Neuspješno brisanje:", error);
+      return res.status(500).json({ error: true, message: "Neuspješno brisanje " + error });
+    }
+    if (results.affectedRows === 0) {
+      console.log("Predmet nije pronađen.");
+      return res.status(404).json({ error: true, message: "Predmet nije pronađen." });
+    }
+    console.log("Brisanje uspješno.");
+    return res.status(200).send({ error: false, message: "Predmet uspešno obrisan." });
+  });
+});
+
 
   //Unos slike
 app.post("/api/unos-slike", function (req, res) {

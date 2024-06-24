@@ -28,7 +28,7 @@
 <div class="q-pa-sm row flex flex-center">
   <div v-for="predmet in vlastitiPredmeti" :key="predmet.id_predmeta" class="q-pa-md" style="width: 400px">
     <q-card>
-      <q-item-section @click="pregledPredmeta(predmet.id_predmeta)">
+      <q-item-section @click="(predmet.id_predmeta)">
         <q-img v-if="predmet.slika" :src="predmet.slika" no-native-menu />
         <q-item class="q-pa-sm text-bold text-blue-7">{{ predmet.naziv_predmeta }}</q-item>
         <q-item>Početna cijena: {{ predmet.pocetna_cijena }}$</q-item>
@@ -38,9 +38,7 @@
         <q-item>Trenutna cijena: {{ predmet.trenutna_cijena }}$</q-item>
       </q-item-section>
       <q-separator dark />
-      <q-card-actions>
-        
-      </q-card-actions>
+      <q-btn flat color="negative" @click="obrisiPredmet(predmet.sifra_predmeta)">Obriši</q-btn>
     </q-card>
   </div>
 </div>
@@ -163,26 +161,36 @@ export default {
     izmijeniPredmet(id_predmeta) {
 
     },
-    async obrisiPredmet(id_predmeta) { //bilo bi dobro imat uvjet da se ne mogu brisat izvedene ili aukcije u tijeku
-      const token = localStorage.getItem("token");
-      const userId = this.getUserIdFromToken(token);
-      const headers = { Authorization: `Bearer ${token}` };
-      if (window.confirm('Jeste li sigurni da želite obrisati predmet?')) {
-        try {
-          const response = await axios.delete("http://localhost:3000/api/brisanjePredmeta/" + id_predmeta, { headers });
+    async obrisiPredmet(sifra_predmeta) {
+  const token = localStorage.getItem("token");
+  const headers = { Authorization: `Bearer ${token}` };
+  
+  if (window.confirm('Jeste li sigurni da želite obrisati predmet?')) {
+    try {
+      console.log("Slanje zahteva za brisanje predmeta sa sifra_predmeta:", sifra_predmeta);
+      const response = await axios.delete(`http://localhost:3000/api/brisanjePredmeta/${sifra_predmeta}`, { headers });
 
-          this.$q.notify({
-            color: "positive",
-            position: "top",
-            message: "Brisanje podataka uspješno!",
-          });
+      this.$q.notify({
+        color: "positive",
+        position: "top",
+        message: "Brisanje podataka uspješno!",
+      });
 
-          this.dohvatPredmeta(userId, headers);
-        } catch (error) {
-          console.log("Greška pri brisanju predmeta: " + error);
-        }
+      this.dohvatPredmeta(userId, headers);
+    } catch (error) {
+      console.log("Greška pri brisanju predmeta:", error);
+      if (error.response) {
+        console.log("Response data:", error.response.data);
+        console.log("Response status:", error.response.status);
+        console.log("Response headers:", error.response.headers);
+      } else if (error.request) {
+        console.log("Request data:", error.request);
+      } else {
+        console.log("Error message:", error.message);
       }
-    },
+    }
+  }
+},
     editBid(bid) {
       // Funkcija za uređivanje bid-a na aukciji
     },
