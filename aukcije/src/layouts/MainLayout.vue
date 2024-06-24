@@ -103,7 +103,9 @@
 
         <q-card-actions align="right">
           <q-btn flat label="Odustani" color="primary" v-close-popup />
-          <q-btn flat label="Odjavi se" color="negative" @click="logoutAndReload" />
+          <router-link to="/logout">
+            <q-btn flat label="Odjavi se" color="negative" @click="logoutAndReload" v-close-popup />
+          </router-link>
         </q-card-actions>
       </q-card>
     </q-dialog>
@@ -193,11 +195,8 @@ export default defineComponent({
     };
 
     const logoutAndReload = () => {
-      // Clear JWT token from local storage
-      localStorage.removeItem("token");
-      // Reload the page
-      window.location.reload();
-    };
+  localStorage.removeItem('token');
+};
 
     return {
       leftDrawerOpen,
