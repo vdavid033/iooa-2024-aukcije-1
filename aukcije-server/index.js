@@ -239,6 +239,8 @@ app.get('/api/get-predmet/:id', (req, res) => {
     });
 });
 
+
+
 // ponuda staro
 
  // app.post('/unostrenutnaponuda', function (request, response) {

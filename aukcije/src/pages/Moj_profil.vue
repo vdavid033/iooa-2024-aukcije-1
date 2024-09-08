@@ -39,6 +39,10 @@
       </q-item-section>
       <q-separator dark />
       <q-card-actions>
+            <q-btn flat color="primary" @click="izmijeniPredmet(predmet.id_predmeta)">Izmijeni</q-btn>
+            <q-btn flat color="negative" @click="obrisiPredmet(predmet.id_predmeta)">Obriši</q-btn>
+          </q-card-actions>
+      <q-card-actions>
         
       </q-card-actions>
     </q-card>
@@ -143,6 +147,7 @@ export default {
     console.error("Error fetching user auctions:", error);
   }
 },
+
 
   getUserIdFromToken(token) {
     var base64Url = token.split('.')[1];

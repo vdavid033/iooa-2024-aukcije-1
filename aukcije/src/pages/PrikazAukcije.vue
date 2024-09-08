@@ -87,15 +87,13 @@ export default {
     };
   },
   mounted() {
-    axios.get(baseUrl + "get-predmet/" + this.sifra_predmeta, {}).then((response) => {
-      this.item = response.data;
-    });
-    /*axios
+
+    axios
       .get(baseUrl + "unostrenutnaponuda/get-predmet/" + this.sifra_predmeta, {})
       .then((response) => {
         this.item = response.data[0];
       });
-*/
+
     axios
       .get(baseUrl + "unostrenutnaponuda/get-predmet-trenutna-cijena/" + this.sifra_predmeta, {})
       .then((response) => {
