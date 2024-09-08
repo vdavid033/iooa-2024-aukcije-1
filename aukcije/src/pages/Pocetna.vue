@@ -56,6 +56,7 @@
               Preostalo vrijeme aukcije: {{ item.preostalo_vrijeme }} h
             </q-item>
             <q-item class="auction-info">Trenutna cijena: {{ item.trenutna_cijena }}$</q-item>
+            <q-item class="auction-info">Broj ponuda: {{ item.broj_ponuda }}</q-item>
           </q-item-section>
         </q-card>
       </div>
@@ -85,6 +86,7 @@ export default {
     axios.get(baseUrl + "all-kategorija").then((response) => {
       this.kategorija = response.data;
     });
+    
   },
 
   methods: {

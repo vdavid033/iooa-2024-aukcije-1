@@ -1,8 +1,22 @@
 <template>
   <div>
-    <q-card :expand="false"></q-card>
+    <!-- Glavna kartica s podacima o predmetu -->
     <q-card class="q-pa-sm q-gutter-sm" flat bordered>
-      <!-- Sadržaj kartice -->
+      <!-- Prikaz slike predmeta -->
+      <q-img
+        :src="item.slika_url"
+        alt="Slika predmeta"
+        style="max-height: 300px; width: 100%; object-fit: cover;"
+      />
+
+      <!-- Prikaz informacija o predmetu -->
+      <q-card-section>
+        <div class="text-h5">{{ item.naziv_predmeta }}</div>
+        <div class="text-subtitle2 q-mb-md">{{ item.opis_predmeta }}</div>
+        <div class="text-body1">
+          Trenutna cijena: <strong>{{ item.trenutna_cijena }} €</strong>
+        </div>
+      </q-card-section>
     </q-card>
 
     <!-- Dialog za ponudu -->
@@ -32,6 +46,7 @@
       </q-dialog>
     </div>
 
+    <!-- Gumb za povratak -->
     <div class="q-pa-md flex flex-center">
       <q-btn label="Povratak" color="primary" @click="goBack" />
     </div>
@@ -57,7 +72,7 @@ export default {
   },
   data() {
     return {
-      item: [],
+      item: {}, // Promijenjeno iz niza u objekt
       showDialog: false,
       odabranaCijena: null,
       prices: [
@@ -72,16 +87,19 @@ export default {
     };
   },
   mounted() {
-    axios
+    axios.get(baseUrl + "get-predmet/" + this.sifra_predmeta, {}).then((response) => {
+      this.item = response.data;
+    });
+    /*axios
       .get(baseUrl + "unostrenutnaponuda/get-predmet/" + this.sifra_predmeta, {})
       .then((response) => {
         this.item = response.data[0];
       });
-
+*/
     axios
       .get(baseUrl + "unostrenutnaponuda/get-predmet-trenutna-cijena/" + this.sifra_predmeta, {})
       .then((response) => {
-        this.item = response.data[0];
+        this.item.trenutna_cijena = response.data[0].trenutna_cijena;
       });
   },
 
@@ -127,7 +145,6 @@ export default {
 </script>
 
 <style>
-/* Dodaj stilove ovdje ako je potrebno */
 .q-banner {
   background-color: #ffc107;
   color: #000;
